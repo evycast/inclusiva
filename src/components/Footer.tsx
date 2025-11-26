@@ -1,4 +1,4 @@
-import { FaWhatsapp, FaHeart, FaUsers, FaQuestionCircle } from 'react-icons/fa';
+import { FaWhatsapp, FaHeart, FaQuestionCircle, FaHandHoldingHeart, FaUsers } from 'react-icons/fa';
 
 export default function Footer() {
 	return (
@@ -24,6 +24,30 @@ export default function Footer() {
 							<FaQuestionCircle className='w-4 h-4' />
 							Guía de uso
 						</a>
+
+						{/* <a
+							href='/terms'
+							className='flex items-center gap-2 text-muted-foreground hover:text-pink-500 transition-colors duration-300'
+						>
+							<FaBook className='w-4 h-4' />
+							Términos y condiciones
+						</a>
+
+						<a
+							href='/story'
+							className='flex items-center gap-2 text-muted-foreground hover:text-violet-500 transition-colors duration-300'
+						>
+							<FaInfoCircle className='w-4 h-4' />
+							Historia
+						</a> */}
+
+						{/* <a
+							href='/aportes'
+							className='flex items-center gap-2 text-muted-foreground hover:text-blue-500 transition-colors duration-300'
+						>
+							<FaHandHoldingHeart className='w-4 h-4' />
+							Aportes
+						</a> */}
 
 						<a
 							href='https://wa.me/5492236032601'

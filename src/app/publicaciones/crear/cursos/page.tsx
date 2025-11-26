@@ -70,13 +70,14 @@ export default function CrearCursoPage() {
       if (!res.ok) {
         let message = `Error ${res.status}`;
         try {
-          const data = await res.json();
-          if (typeof (data as any)?.error === 'string') message = (data as any).error;
-          else if ((data as any)?.error?.formErrors?.length) message = (data as any).error.formErrors.join(', ');
-          else if ((data as any)?.error?.fieldErrors) {
-            const fields = Object.values<string[]>((data as any).error.fieldErrors as any).flat();
-            if (fields.length) message = fields.join(', ');
-          } else if (typeof (data as any)?.message === 'string') message = (data as any).message;
+          const data: unknown = await res.json();
+          if (typeof data === 'object' && data && 'error' in data) {
+            const err = (data as { error: unknown }).error;
+            if (typeof err === 'string') message = err;
+          } else if (typeof data === 'object' && data && 'message' in data) {
+            const msg = (data as { message: unknown }).message;
+            if (typeof msg === 'string') message = msg;
+          }
         } catch {
           const text = await res.text().catch(() => '');
           if (text) message = text;
@@ -85,8 +86,9 @@ export default function CrearCursoPage() {
       }
       toast.success('Tu publicación se envió para validación. Redirigiendo...');
       router.push('/publicaciones');
-    } catch (e: any) {
-      toast.error(e?.message || 'No pudimos crear tu publicación');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'No pudimos crear tu publicación';
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -286,7 +288,7 @@ export default function CrearCursoPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Select onValueChange={field.onChange} value={field.value as any}>
+                        <Select onValueChange={field.onChange} value={field.value ?? ''}>
                           <SelectTrigger className='w-full'>
                             <SelectValue placeholder='Seleccionar' />
                           </SelectTrigger>
@@ -402,7 +404,7 @@ export default function CrearCursoPage() {
                   <Badge variant='outline'>Requerido</Badge>
                 </div>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value as any}>
+                  <Select onValueChange={field.onChange} value={field.value ?? ''}>
                     <SelectTrigger className='w-full'>
                       <SelectValue placeholder='Seleccionar' />
                     </SelectTrigger>
@@ -478,7 +480,7 @@ export default function CrearCursoPage() {
                   <Badge variant='outline'>Opcional</Badge>
                 </div>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={(field.value ?? undefined) as any}>
+                  <Select onValueChange={field.onChange} value={field.value ?? ''}>
                     <SelectTrigger className='w-full'>
                       <SelectValue placeholder='Seleccionar' />
                     </SelectTrigger>

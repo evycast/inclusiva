@@ -8,6 +8,7 @@ import { categoryOptions, paymentMethodLabelsEs } from '@/lib/validation/post';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { signOut } from 'next-auth/react';
 import { Input } from '@/components/ui/input';
 import {
 	Select,
@@ -68,21 +69,18 @@ export default function AdminPostsPage() {
 		return sp.toString();
 	}, [q, category, status, page]);
 
-	const { data, isLoading, isError } = useQuery<{ data: ApiPost[]; pagination: ListResponse['pagination'] }>({
-		queryKey: ['admin-posts', params],
-		queryFn: async () => {
-			const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
-			const res = await fetch(`/api/admin/posts?${params}`, {
-				headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-			});
-			if (res.status === 401) {
-				router.push('/admin/login');
-				throw new Error('No autorizado');
-			}
-			if (!res.ok) throw new Error('Error al cargar publicaciones');
-			return res.json();
-		},
-	});
+  const { data, isLoading, isError } = useQuery<{ data: ApiPost[]; pagination: ListResponse['pagination'] }>({
+    queryKey: ['admin-posts', params],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/posts?${params}`);
+      if (res.status === 401) {
+        router.push('/admin/login');
+        throw new Error('No autorizado');
+      }
+      if (!res.ok) throw new Error('Error al cargar publicaciones');
+      return res.json();
+    },
+  });
 
 	const posts = data?.data ?? [];
 	const pagination = data?.pagination;
@@ -93,14 +91,13 @@ export default function AdminPostsPage() {
 	const [deletePost, setDeletePost] = useState<ApiPost | null>(null);
 	const [changingId, setChangingId] = useState<string | null>(null);
 
-	async function changeStatus(id: string, next: Status) {
-		const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
-		setChangingId(id);
-		const res = await fetch(`/api/admin/posts/${id}`, {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-			body: JSON.stringify({ status: next }),
-		});
+  async function changeStatus(id: string, next: Status) {
+    setChangingId(id);
+    const res = await fetch(`/api/admin/posts/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: next }),
+    });
 		if (res.status === 401) {
 			router.push('/admin/login');
 			return;
@@ -109,13 +106,12 @@ export default function AdminPostsPage() {
 		setChangingId(null);
 	}
 
-	async function applyEdit(updated: Partial<ApiPost> & { id: string }) {
-		const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
-		const res = await fetch(`/api/admin/posts/${updated.id}`, {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-			body: JSON.stringify(updated),
-		});
+  async function applyEdit(updated: Partial<ApiPost> & { id: string }) {
+    const res = await fetch(`/api/admin/posts/${updated.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated),
+    });
 		if (res.status === 401) {
 			router.push('/admin/login');
 			return;
@@ -124,12 +120,10 @@ export default function AdminPostsPage() {
 		qc.invalidateQueries({ queryKey: ['admin-posts'] });
 	}
 
-	async function confirmDelete(id: string) {
-		const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
-		const res = await fetch(`/api/admin/posts/${id}`, {
-			method: 'DELETE',
-			headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-		});
+  async function confirmDelete(id: string) {
+    const res = await fetch(`/api/admin/posts/${id}`, {
+      method: 'DELETE',
+    });
 		if (res.status === 401) {
 			router.push('/admin/login');
 			return;
@@ -140,11 +134,24 @@ export default function AdminPostsPage() {
 
 	// Eliminamos render de modales de ver/editar temporalmente
 
-	return (
-		<div className='px-4 max-w-7xl mx-auto py-6 min-h-[calc(100svh-5rem)] flex flex-col'>
-			<div className='flex items-center justify-between gap-4 mb-6'>
-				<h1 className='text-xl font-semibold'>Panel de Admin · Publicaciones</h1>
-			</div>
+  return (
+    <div className='px-4 max-w-7xl mx-auto py-6 min-h-[calc(100svh-5rem)] flex flex-col'>
+      <div className='flex items-center justify-between gap-4 mb-6'>
+        <h1 className='text-xl font-semibold'>Panel de Admin · Publicaciones</h1>
+        <Button
+          variant='outline'
+          onClick={async () => {
+            try {
+              await fetch('/api/auth/logout', { method: 'POST' }).catch(() => undefined)
+              await signOut({ redirect: false }).catch(() => undefined);
+            } finally {
+              router.replace('/admin/login');
+            }
+          }}
+        >
+          Cerrar sesión
+        </Button>
+      </div>
 
 			<div className='grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3 mb-4 items-end'>
 				<div className='col-span-2'>

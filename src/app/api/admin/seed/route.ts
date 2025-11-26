@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireAdmin } from '@/lib/auth'
-import { posts } from '@/data/posts'
+import { requireRole } from '@/lib/auth'
+import { posts, type Post } from '@/data/posts'
+import { Prisma } from '@prisma/client'
 import { parseISO, isValid } from 'date-fns'
 import { tagOptions } from '@/lib/validation/post'
 
@@ -20,10 +21,10 @@ function mapContactToSocials(contact?: Record<string, string | undefined>): { na
   return entries.map(([name, url]) => ({ name, url }))
 }
 
-function toCreateData(p: any) {
+function toCreateData(p: Post): Prisma.PostCreateManyInput {
   const date = p.date ? parseISO(p.date) : undefined
-  const startDate = p.startDate ? parseISO(p.startDate) : undefined
-  const endDate = p.endDate ? parseISO(p.endDate) : undefined
+  const startDate = 'startDate' in p && p.startDate ? parseISO(p.startDate) : undefined
+  const endDate = 'endDate' in p && p.endDate ? parseISO(p.endDate) : undefined
 
   const rawTags: string[] = Array.isArray(p.tags) ? p.tags : []
   const normalizedTags = rawTags
@@ -31,27 +32,27 @@ function toCreateData(p: any) {
     .filter(t => TAG_SET.has(t))
 
   // Normalize mode value (remove tildes)
-  const mode = p.mode ? (normalize(p.mode) as 'presencial' | 'online' | 'hibrido') : undefined
+  const modeRaw = ('mode' in p ? p.mode : undefined) as string | undefined
+  const mode = modeRaw ? (normalize(modeRaw) as 'presencial' | 'online' | 'hibrido') : undefined
 
-  const socials = mapContactToSocials(p.contact)
 
-  const base = {
+  const base: Prisma.PostCreateManyInput = {
     category: p.category,
     title: p.title,
-    subtitle: p.subtitle,
+    subtitle: p.subtitle ?? null,
     description: p.description || '',
     image: p.image,
     author: p.author,
-    authorAvatar: p.authorAvatar || 'https://example.com/avatar.png',
+    authorAvatar: p.authorAvatar ?? 'https://example.com/avatar.png',
     location: p.location,
     price: p.price ?? null,
-    priceLabel: p.priceLabel,
+    priceLabel: p.priceLabel ?? null,
     rating: p.rating ?? null,
     ratingCount: p.ratingCount ?? null,
     tags: normalizedTags,
     urgent: !!p.urgent,
     date: date && isValid(date) ? date : null,
-    payment: (p.payment ?? []) as any,
+    payment: (p.payment ?? []) as unknown as Prisma.PostCreateManyInput['payment'],
     barterAccepted: !!p.barterAccepted,
     status: 'approved' as const,
   }
@@ -102,58 +103,17 @@ function toCreateData(p: any) {
     ...used,
     ...course,
     ...request,
-    socials: socials.length > 0 ? { create: socials } : undefined,
   }
 }
 
 export async function POST(req: NextRequest) {
-  const auth = requireAdmin(req)
+  const auth = await requireRole(req, ['admin'])
   if (!auth.ok) return auth.res
 
   try {
     const data = posts.map(p => toCreateData(p))
 
-    await prisma.$transaction([
-      prisma.post.createMany({ data: data.map(d => ({
-        // createMany cannot create relations; insert scalar part first
-        category: d.category as any,
-        title: d.title,
-        subtitle: d.subtitle,
-        description: d.description,
-        image: d.image,
-        author: d.author,
-        authorAvatar: d.authorAvatar,
-        location: d.location,
-        price: d.price as any,
-        priceLabel: d.priceLabel,
-        rating: d.rating as any,
-        ratingCount: d.ratingCount as any,
-        tags: d.tags,
-        urgent: d.urgent,
-        date: d.date as any,
-        payment: d.payment as any,
-        barterAccepted: d.barterAccepted,
-        startDate: (d as any).startDate,
-        endDate: (d as any).endDate,
-        venue: (d as any).venue,
-        mode: (d as any).mode,
-        capacity: (d as any).capacity,
-        organizer: (d as any).organizer,
-        experienceYears: (d as any).experienceYears,
-        availability: (d as any).availability,
-        serviceArea: (d as any).serviceArea,
-        condition: (d as any).condition,
-        stock: (d as any).stock,
-        warranty: (d as any).warranty,
-        usageTime: (d as any).usageTime,
-        duration: (d as any).duration,
-        schedule: (d as any).schedule,
-        level: (d as any).level,
-        neededBy: (d as any).neededBy,
-        budgetRange: (d as any).budgetRange,
-        status: d.status as any,
-      })) }),
-    ])
+    await prisma.post.createMany({ data })
 
     // create socials after inserting posts
     const inserted: Array<{ id: string; title: string }> = await prisma.post.findMany({ select: { id: true, title: true } })
@@ -174,7 +134,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const auth = requireAdmin(req)
+  const auth = await requireRole(req, ['admin'])
   if (!auth.ok) return auth.res
   try {
     await prisma.post.deleteMany({})

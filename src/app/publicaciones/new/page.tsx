@@ -8,7 +8,7 @@ export default function PublicCreatePostPage() {
 
   useEffect(() => {
     // Redirigir a la página unificada de creación
-    router.replace('/crear-publicacion');
+    router.replace('/publicaciones/crear');
   }, [router]);
 
   return (

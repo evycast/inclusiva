@@ -1,54 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { signAdminJWT } from '@/lib/auth'
-
-function getBasicCredentials(req: NextRequest): { user?: string; pass?: string } {
-  const header = req.headers.get('authorization')
-  if (!header || !header.startsWith('Basic ')) return {}
-  try {
-    const decoded = Buffer.from(header.replace('Basic ', ''), 'base64').toString('utf8')
-    const [user, pass] = decoded.split(':')
-    return { user, pass }
-  } catch {
-    return {}
-  }
-}
+import { prisma } from '@/lib/prisma'
+import { verifyPassword } from '@/lib/password'
+import { signUserJWT } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
-  // Accept credentials via Basic header OR JSON body
-  let { user, pass } = getBasicCredentials(req)
-  if (!user || !pass) {
-    try {
-      const body = await req.json().catch(() => ({}))
-      user = body.username || body.user
-      pass = body.password || body.pass
-    } catch {
-      // ignore
-    }
-  }
-
-  if (!user || !pass) {
-    return NextResponse.json({ error: 'Missing credentials' }, { status: 400 })
-  }
-
-  if (user !== process.env.ADMIN_USER || pass !== process.env.ADMIN_PASS) {
-    return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
-  }
-
   try {
-    const token = signAdminJWT(user)
-    const expiresIn = 2 * 60 * 60 // 2h
-    const res = NextResponse.json({ token, tokenType: 'Bearer', expiresIn })
-    // Set cookie for SSR validation
+    const { email, password } = await req.json()
+    const user = await prisma.user.findUnique({ where: { email: (email ?? '').toLowerCase() } })
+    if (!user) return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 })
+    const ok = await verifyPassword(String(password ?? ''), user.passwordHash)
+    if (!ok) return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 })
+    const expiresInSec = 2 * 60 * 60
+    const token = signUserJWT(user.id, user.role, { expiresInSec })
+    const res = NextResponse.json({ token, user: { id: user.id, email: user.email, role: user.role } })
     res.cookies.set('adminToken', token, {
       httpOnly: true,
-      maxAge: expiresIn,
-      path: '/',
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
+      maxAge: expiresInSec,
+      path: '/',
     })
     return res
-  } catch (err) {
-    console.error(err)
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Invalid request'
+    return NextResponse.json({ error: msg }, { status: 400 })
   }
 }

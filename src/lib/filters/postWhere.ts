@@ -1,4 +1,4 @@
-// Tipos de Prisma no disponibles en este entorno; usar tipos genéricos
+import type { Prisma, Category, Mode } from '@prisma/client'
 
 export type ListParams = {
 	q?: string;
@@ -17,8 +17,8 @@ function normalize(str: string) {
 		.replace(/[\u0300-\u036f]/g, '');
 }
 
-export function buildPostWhere(params: ListParams, opts?: { includeNonApproved?: boolean }): Record<string, any> {
-    const where: Record<string, any> = {};
+export function buildPostWhere(params: ListParams, opts?: { includeNonApproved?: boolean }): Prisma.PostWhereInput {
+    const where: Prisma.PostWhereInput = {};
 
 	// Status: by default only approved
 	if (!opts?.includeNonApproved) {
@@ -27,23 +27,24 @@ export function buildPostWhere(params: ListParams, opts?: { includeNonApproved?:
 		where.status = params.status;
 	}
 
-	if (params.category) {
-		where.category = params.category as any;
-	}
+    if (params.category) {
+        where.category = params.category as Category;
+    }
 
 	if (params.urgent !== undefined) {
 		where.urgent = params.urgent;
 	}
 
-	if (params.minPrice !== undefined || params.maxPrice !== undefined) {
-		where.price = {};
-		if (params.minPrice !== undefined) where.price.gte = params.minPrice;
-		if (params.maxPrice !== undefined) where.price.lte = params.maxPrice;
-	}
+    if (params.minPrice !== undefined || params.maxPrice !== undefined) {
+        where.price = {
+            ...(params.minPrice !== undefined ? { gte: params.minPrice } : {}),
+            ...(params.maxPrice !== undefined ? { lte: params.maxPrice } : {}),
+        };
+    }
 
-	if (params.mode) {
-		where.mode = params.mode as any;
-	}
+    if (params.mode) {
+        where.mode = params.mode as Mode;
+    }
 
 	if (params.q && params.q.trim().length > 0) {
 		const qRaw = params.q.trim();
@@ -58,12 +59,12 @@ export function buildPostWhere(params: ListParams, opts?: { includeNonApproved?:
 		];
 	}
 
-	return where;
+    return where;
 }
 
 export type SortKey = 'recent' | 'price_asc' | 'price_desc' | 'rating_desc';
 
-export function resolveOrderBy(sort?: SortKey): Record<string, any> | Record<string, any>[] {
+export function resolveOrderBy(sort?: SortKey): Prisma.PostOrderByWithRelationInput | Prisma.PostOrderByWithRelationInput[] {
     switch (sort) {
         case 'price_asc':
             return { price: 'asc' };

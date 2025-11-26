@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+// next-auth not used here; cookie is set by our API
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -14,6 +15,20 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const res = await fetch('/api/auth/status')
+        if (!res.ok) return
+        const data: unknown = await res.json()
+        if (typeof data === 'object' && data && 'ok' in data && (data as { ok: boolean }).ok) {
+          router.replace('/admin/posts')
+        }
+      } catch {}
+    }
+    check()
+  }, [router])
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -21,26 +36,26 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email: username, password }),
       })
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.error || 'Login inválido')
+        let message = `Error ${res.status}`
+        try {
+          const data: unknown = await res.json()
+          if (typeof data === 'object' && data && 'error' in data) {
+            const err = (data as { error: unknown }).error
+            if (typeof err === 'string') message = err
+          }
+        } catch {}
+        throw new Error(message)
       }
-      const data = await res.json()
-      localStorage.setItem('adminToken', data.token)
+      await res.json()
       toast.success('Sesión iniciada')
-      // Usar replace para evitar volver al login y asegurar SSR lee la cookie
+      router.refresh()
       router.replace('/admin/posts')
-      // En caso de que la navegación cliente no aplique la cookie a SSR, forzar recarga
-      // (fallback seguro en algunos navegadores/entornos)
-      setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          window.location.assign('/admin/posts')
-        }
-      }, 0)
-    } catch (err: any) {
-      toast.error(err.message || 'Error de inicio de sesión')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error de inicio de sesión'
+      toast.error(msg)
     } finally {
       setLoading(false)
     }

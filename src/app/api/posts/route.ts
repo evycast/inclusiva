@@ -1,62 +1,64 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { postSchema } from '@/lib/validation/post'
+import { postSchema, type PostInput } from '@/lib/validation/post'
 import { parseISO, isValid } from 'date-fns'
 import { buildPostWhere, resolveOrderBy, type SortKey } from '@/lib/filters/postWhere'
 
-function toApiPost(p: any) {
+function toApiPost(p: Record<string, unknown>) {
   return {
-    id: p.id,
-    category: p.category,
-    title: p.title,
-    subtitle: p.subtitle ?? undefined,
-    description: p.description,
-    image: p.image,
-    author: p.author,
-    authorAvatar: p.authorAvatar ?? undefined,
-    location: p.location,
-    price: typeof p.price === 'number' ? p.price : undefined,
-    priceLabel: p.priceLabel ?? undefined,
-    rating: typeof p.rating === 'number' ? p.rating : undefined,
-    ratingCount: typeof p.ratingCount === 'number' ? p.ratingCount : undefined,
-    tags: Array.isArray(p.tags) ? p.tags : undefined,
-    urgent: !!p.urgent,
+    id: (p as { id: string }).id,
+    category: (p as { category: PostInput['category'] }).category,
+    title: (p as { title: string }).title,
+    subtitle: (p as { subtitle: string | null }).subtitle ?? undefined,
+    description: (p as { description: string }).description,
+    image: (p as { image: string }).image,
+    author: (p as { author: string }).author,
+    authorAvatar: (p as { authorAvatar: string | null }).authorAvatar ?? undefined,
+    location: (p as { location: string }).location,
+    price: typeof (p as { price: number | null }).price === 'number' ? (p as { price: number | null }).price : undefined,
+    priceLabel: (p as { priceLabel: string | null }).priceLabel ?? undefined,
+    rating: typeof (p as { rating: number | null }).rating === 'number' ? (p as { rating: number | null }).rating : undefined,
+    ratingCount: typeof (p as { ratingCount: number | null }).ratingCount === 'number' ? (p as { ratingCount: number | null }).ratingCount : undefined,
+    tags: Array.isArray((p as { tags: string[] | null }).tags) ? (p as { tags: string[] | null }).tags ?? undefined : undefined,
+    urgent: !!(p as { urgent: boolean | null }).urgent,
     // Fecha de publicación
-    date: p.date ? new Date(p.date).toISOString() : new Date().toISOString(),
-    status: p.status,
-    socials: (p.socials ?? []).map((s: any) => ({ name: s.name, url: s.url })),
-    payment: Array.isArray(p.payment) ? p.payment : undefined,
-    barterAccepted: !!p.barterAccepted,
+    date: (p as { date: Date | string | null }).date ? new Date((p as { date: Date | string | null }).date as Date | string).toISOString() : new Date().toISOString(),
+    status: (p as { status: 'pending' | 'approved' | 'rejected' }).status,
+    socials: Array.isArray((p as { socials: { name: string; url: string }[] | null }).socials)
+      ? ((p as { socials: { name: string; url: string }[] }).socials).map((s) => ({ name: s.name, url: s.url }))
+      : [],
+    payment: Array.isArray((p as { payment: PostInput['payment'] | null }).payment) ? ((p as { payment: PostInput['payment'] }).payment) : undefined,
+    barterAccepted: !!(p as { barterAccepted: boolean | null }).barterAccepted,
 
     // Evento
-    startDate: p.startDate ? new Date(p.startDate).toISOString() : undefined,
-    endDate: p.endDate ? new Date(p.endDate).toISOString() : undefined,
-    venue: p.venue ?? undefined,
-    mode: p.mode ?? undefined,
-    capacity: typeof p.capacity === 'number' ? p.capacity : undefined,
-    organizer: p.organizer ?? undefined,
+    startDate: (p as { startDate: Date | string | null }).startDate ? new Date((p as { startDate: Date | string | null }).startDate as Date | string).toISOString() : undefined,
+    endDate: (p as { endDate: Date | string | null }).endDate ? new Date((p as { endDate: Date | string | null }).endDate as Date | string).toISOString() : undefined,
+    venue: (p as { venue: string | null }).venue ?? undefined,
+    mode: (p as { mode: 'presencial' | 'online' | 'hibrido' | null }).mode ?? undefined,
+    capacity: typeof (p as { capacity: number | null }).capacity === 'number' ? (p as { capacity: number | null }).capacity : undefined,
+    organizer: (p as { organizer: string | null }).organizer ?? undefined,
 
     // Servicio
-    experienceYears: typeof p.experienceYears === 'number' ? p.experienceYears : undefined,
-    availability: p.availability ?? undefined,
-    serviceArea: p.serviceArea ?? undefined,
+    experienceYears: typeof (p as { experienceYears: number | null }).experienceYears === 'number' ? (p as { experienceYears: number | null }).experienceYears : undefined,
+    availability: (p as { availability: string | null }).availability ?? undefined,
+    serviceArea: (p as { serviceArea: string | null }).serviceArea ?? undefined,
 
     // Producto
-    condition: p.condition ?? undefined,
-    stock: typeof p.stock === 'number' ? p.stock : undefined,
-    warranty: p.warranty ?? undefined,
+    condition: (p as { condition: 'nuevo' | 'reacondicionado' | 'usado' | null }).condition ?? undefined,
+    stock: typeof (p as { stock: number | null }).stock === 'number' ? (p as { stock: number | null }).stock : undefined,
+    warranty: (p as { warranty: string | null }).warranty ?? undefined,
 
     // Usado
-    usageTime: p.usageTime ?? undefined,
+    usageTime: (p as { usageTime: string | null }).usageTime ?? undefined,
 
     // Curso
-    duration: p.duration ?? undefined,
-    schedule: p.schedule ?? undefined,
-    level: p.level ?? undefined,
+    duration: (p as { duration: string | null }).duration ?? undefined,
+    schedule: (p as { schedule: string | null }).schedule ?? undefined,
+    level: (p as { level: 'principiante' | 'intermedio' | 'avanzado' | null }).level ?? undefined,
 
     // Pedido
-    neededBy: p.neededBy ?? undefined,
-    budgetRange: p.budgetRange ?? undefined,
+    neededBy: (p as { neededBy: string | null }).neededBy ?? undefined,
+    budgetRange: (p as { budgetRange: string | null }).budgetRange ?? undefined,
   }
 }
 
@@ -93,8 +95,8 @@ export async function GET(req: NextRequest) {
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } },
     )
-  } catch (e: any) {
-    const msg = e?.message ?? 'Failed to fetch posts'
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Failed to fetch posts'
     return new Response(JSON.stringify({ error: msg }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 }
@@ -102,11 +104,11 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const json = await req.json()
-    const input = postSchema.parse(json)
+    const input = postSchema.parse(json) as PostInput
 
     // Construir payload limpio según categoría
     const baseData = {
-      category: input.category as any,
+      category: input.category,
       title: input.title,
       subtitle: input.subtitle ?? null,
       description: input.description,
@@ -122,64 +124,64 @@ export async function POST(req: NextRequest) {
       urgent: !!input.urgent,
       // Fecha de publicación automática
       date: new Date(),
-      payment: ((input as any).payment ?? []) as any,
-      barterAccepted: !!(input as any).barterAccepted,
-      status: 'pending' as any,
+      payment: input.payment ?? [],
+      barterAccepted: !!input.barterAccepted,
+      status: 'pending',
     } as const
 
-    let categoryData: Record<string, any> = {}
+    let categoryData: Record<string, unknown> = {}
 
     switch (input.category) {
       case 'eventos': {
-        const startDate = parseISO((input as any).startDate)
-        const endDateStr = (input as any).endDate as string | undefined
+        const startDate = parseISO(input.startDate)
+        const endDateStr = input.endDate as string | undefined
         const endDate = endDateStr ? parseISO(endDateStr) : undefined
         categoryData = {
           startDate: isValid(startDate) ? startDate : new Date(),
           endDate: endDate && isValid(endDate) ? endDate : null,
-          venue: (input as any).venue ?? null,
-          mode: (input as any).mode as any,
-          capacity: typeof (input as any).capacity === 'number' ? (input as any).capacity : null,
-          organizer: (input as any).organizer ?? null,
+          venue: input.venue ?? null,
+          mode: input.mode,
+          capacity: typeof input.capacity === 'number' ? input.capacity : null,
+          organizer: input.organizer ?? null,
         }
         break
       }
       case 'servicios': {
         categoryData = {
-          experienceYears: typeof (input as any).experienceYears === 'number' ? (input as any).experienceYears : null,
-          availability: (input as any).availability ?? null,
-          serviceArea: (input as any).serviceArea ?? null,
+          experienceYears: typeof input.experienceYears === 'number' ? input.experienceYears : null,
+          availability: input.availability ?? null,
+          serviceArea: input.serviceArea ?? null,
         }
         break
       }
       case 'productos': {
         categoryData = {
-          condition: (input as any).condition as any,
-          stock: typeof (input as any).stock === 'number' ? (input as any).stock : null,
-          warranty: (input as any).warranty ?? null,
+          condition: input.condition,
+          stock: typeof input.stock === 'number' ? input.stock : null,
+          warranty: input.warranty ?? null,
         }
         break
       }
       case 'usados': {
         categoryData = {
-          condition: 'usado' as any,
-          usageTime: (input as any).usageTime ?? null,
+          condition: 'usado',
+          usageTime: input.usageTime ?? null,
         }
         break
       }
       case 'cursos': {
         categoryData = {
-          mode: (input as any).mode as any,
-          duration: (input as any).duration ?? null,
-          schedule: (input as any).schedule ?? null,
-          level: (input as any).level as any,
+          mode: input.mode,
+          duration: input.duration ?? null,
+          schedule: input.schedule ?? null,
+          level: input.level,
         }
         break
       }
       case 'pedidos': {
         categoryData = {
-          neededBy: (input as any).neededBy ?? null,
-          budgetRange: (input as any).budgetRange ?? null,
+          neededBy: input.neededBy ?? null,
+          budgetRange: input.budgetRange ?? null,
         }
         break
       }
@@ -200,8 +202,8 @@ export async function POST(req: NextRequest) {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
     })
-  } catch (e: any) {
-    const msg = e?.message ?? 'Invalid request'
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Invalid request'
     return new Response(JSON.stringify({ error: msg }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },

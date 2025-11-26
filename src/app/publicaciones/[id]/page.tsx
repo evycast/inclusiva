@@ -56,6 +56,8 @@ import {
 } from 'react-icons/fa';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import CommentForm from '@/components/CommentForm';
+import CommentList from '@/components/CommentList';
 
 type PageProps = { params: { id: string } };
 
@@ -169,7 +171,7 @@ export default function PostDetailPage() {
 	const CategoryIcon = categoryIcon[post.category];
 
 	const statusMeta = (() => {
-		const s = (post as any)?.status as string | undefined;
+		const s = post.status;
 		if (!s) return null;
 		if (s === 'pending') {
 			return {
@@ -188,9 +190,9 @@ export default function PostDetailPage() {
 		return null;
 	})();
 
-	return (
-		<div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
-			<div className='max-w-5xl mx-auto'>
+  return (
+    <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
+      <div className='max-w-5xl mx-auto'>
 				{/* Header con botón de regreso */}
 				<div className='flex items-center justify-between p-6'>
 					<Link href='/publicaciones'>
@@ -219,13 +221,16 @@ export default function PostDetailPage() {
 					</div>
 				</div>
 
-				{/* Imagen principal */}
-				<div className='relative h-[40vh] lg:h-[50vh] mx-6 rounded-2xl overflow-hidden'>
-					<Image src={post.image} alt={post.title} fill className='object-cover' priority />
-				</div>
+        {/* Imagen principal */}
+        <div className='relative h-[40vh] lg:h-[50vh] mx-6 rounded-2xl overflow-hidden'>
+          <Image src={post.image} alt={post.title} fill className='object-cover' priority />
+        </div>
 
 				{/* Contenido principal */}
-				<div className='p-6 space-y-8'>
+          <div className='p-6 space-y-8'>
+            <div className='rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground'>
+              Importante: el contacto y la contratación se gestionan fuera de la plataforma. Usá tu criterio y precaución.
+            </div>
 					{/* Header de información */}
 					<div className='space-y-6'>
 						<div className='flex flex-wrap items-center justify-between gap-4'>
@@ -327,23 +332,31 @@ export default function PostDetailPage() {
 							</div>
 
 							{/* Tags */}
-							{post.tags && post.tags.length > 0 && (
-								<div className='space-y-3'>
-									<h2 className='text-xl font-semibold text-slate-100'>Etiquetas</h2>
-									<div className='flex flex-wrap gap-2'>
-										{post.tags.map((tag, index) => (
-											<Badge
-												key={index}
-												variant='outline'
-												className='border-slate-600 text-slate-300 hover:bg-slate-700'
-											>
-												<FaTag className='mr-2 text-xs' />
-												{tag}
-											</Badge>
-										))}
-									</div>
-								</div>
-							)}
+                            {post.tags && post.tags.length > 0 && (
+                                <div className='space-y-3'>
+                                    <h2 className='text-xl font-semibold text-slate-100'>Etiquetas</h2>
+                                    <div className='flex flex-wrap gap-2'>
+                                        {post.tags.map((tag, index) => (
+                                            <Badge
+                                                key={index}
+                                                variant='outline'
+                                                className='border-slate-600 text-slate-300 hover:bg-slate-700'
+                                            >
+                                                <FaTag className='mr-2 text-xs' />
+                                                {tag}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className='space-y-3'>
+                                <h2 className='text-xl font-semibold text-slate-100'>Comentarios</h2>
+                                <CommentForm postId={params.id as string} />
+                                <div className='mt-4'>
+                                    <CommentList postId={params.id as string} />
+                                </div>
+                            </div>
 						</div>
 
 						{/* Sidebar de contacto y pago */}

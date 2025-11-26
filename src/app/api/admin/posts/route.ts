@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { buildPostWhere, resolveOrderBy, type SortKey } from '@/lib/filters/postWhere'
-import { requireAdmin } from '@/lib/auth'
-import { postSchema } from '@/lib/validation/post'
+import { requireRole } from '@/lib/auth'
+import { postSchema, type PostInput } from '@/lib/validation/post'
 import { parseISO, isValid } from 'date-fns'
 
 export async function GET(req: NextRequest) {
-  const auth = requireAdmin(req)
+  const auth = await requireRole(req, ['admin'])
   if (!auth.ok) return auth.res
 
   const sp = req.nextUrl.searchParams
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = requireAdmin(req)
+  const auth = await requireRole(req, ['admin'])
   if (!auth.ok) return auth.res
 
   const body = await req.json()
@@ -52,87 +52,83 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
-  const input = parsed.data
+  const input: PostInput = parsed.data
 
-  const dateStr = (input as any).date as string | undefined
-  const date = dateStr ? parseISO(dateStr) : undefined
-  const startDateStr = (input as any).startDate as string | undefined
-  const endDateStr = (input as any).endDate as string | undefined
-  const startDate = startDateStr ? parseISO(startDateStr) : undefined
-  const endDate = endDateStr ? parseISO(endDateStr) : undefined
+  // const date = input.date ? parseISO(input.date) : undefined
+  const startDate = 'startDate' in input && input.startDate ? parseISO(input.startDate) : undefined
+  const endDate = 'endDate' in input && input.endDate ? parseISO(input.endDate) : undefined
 
   // Construir payload limpio por categoría y aplicar defaults
   const baseData = {
-    category: input.category as any,
+    category: input.category,
     title: input.title,
-    subtitle: input.subtitle,
+    subtitle: input.subtitle ?? null,
     description: input.description,
     image: input.image,
     author: input.author,
-    authorAvatar: input.authorAvatar,
+    authorAvatar: input.authorAvatar ?? null,
     location: input.location,
     price: input.price ?? null,
-    priceLabel: input.priceLabel,
+    priceLabel: input.priceLabel ?? null,
     rating: input.rating ?? null,
     ratingCount: input.ratingCount ?? null,
     tags: input.tags ?? [],
     urgent: input.urgent ?? false,
-    // Fecha de publicación automática
     date: new Date(),
-    payment: (input.payment ?? []) as any,
+    payment: input.payment ?? [],
     barterAccepted: input.barterAccepted ?? false,
-    status: 'pending' as any,
+    status: 'pending' as const,
   }
 
-  let categoryData: Record<string, any> = {}
+  let categoryData: Record<string, unknown> = {}
   switch (input.category) {
     case 'eventos': {
       categoryData = {
         startDate: startDate && isValid(startDate) ? startDate : new Date(),
         endDate: endDate && isValid(endDate) ? endDate : null,
-        venue: (input as any).venue,
-        mode: (input as any).mode,
-        capacity: (input as any).capacity ?? null,
-        organizer: (input as any).organizer,
+        venue: input.venue,
+        mode: input.mode,
+        capacity: input.capacity ?? null,
+        organizer: input.organizer ?? null,
       }
       break
     }
     case 'servicios': {
       categoryData = {
-        experienceYears: (input as any).experienceYears ?? null,
-        availability: (input as any).availability,
-        serviceArea: (input as any).serviceArea,
+        experienceYears: input.experienceYears ?? null,
+        availability: input.availability ?? null,
+        serviceArea: input.serviceArea ?? null,
       }
       break
     }
     case 'productos': {
       categoryData = {
-        condition: (input as any).condition,
-        stock: (input as any).stock ?? null,
-        warranty: (input as any).warranty,
+        condition: input.condition,
+        stock: input.stock ?? null,
+        warranty: input.warranty ?? null,
       }
       break
     }
     case 'usados': {
       categoryData = {
-        condition: 'usado' as any,
-        usageTime: (input as any).usageTime,
+        condition: 'usado' as const,
+        usageTime: input.usageTime ?? null,
       }
       break
     }
     case 'cursos': {
       categoryData = {
-        mode: (input as any).mode,
-        duration: (input as any).duration,
-        schedule: (input as any).schedule,
-        level: (input as any).level,
+        mode: input.mode,
+        duration: input.duration,
+        schedule: input.schedule ?? null,
+        level: input.level ?? null,
       }
       break
     }
     case 'pedidos': {
       categoryData = {
-        neededBy: (input as any).neededBy,
-        budgetRange: (input as any).budgetRange,
+        neededBy: input.neededBy ?? null,
+        budgetRange: input.budgetRange ?? null,
       }
       break
     }

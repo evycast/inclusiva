@@ -8,10 +8,7 @@ export function usePostQuery(id?: string) {
     queryKey: ['post', id],
     enabled: !!id,
     queryFn: async () => {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null
-      const res = await fetch(`/api/posts/${id}` , {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      })
+      const res = await fetch(`/api/posts/${id}`)
       if (!res.ok) throw new Error('Error fetching post')
       return res.json() as Promise<DetailResponse>
     },

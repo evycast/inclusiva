@@ -144,9 +144,9 @@ export default function GuiaPage() {
 									Usá la barra de búsqueda para encontrar publicaciones específicas. Podés filtrar por categoría usando
 									los chips coloridos y ordenar por fecha, precio o valoración.
 								</p>
-								<div className='bg-muted/50 rounded-lg p-3 text-sm'>
-									<strong>Tip:</strong> Probá buscar "terapia trans", "bar friendly" o "grupo de apoyo"
-								</div>
+                                <div className='bg-muted/50 rounded-lg p-3 text-sm'>
+                                    <strong>Tip:</strong> Probá buscar &quot;terapia trans&quot;, &quot;bar friendly&quot; o &quot;grupo de apoyo&quot;
+                                </div>
 							</div>
 						</div>
 					</div>
@@ -179,12 +179,12 @@ export default function GuiaPage() {
 								<p className='text-muted-foreground mb-3'>
                   ¿Querés crear una publicación o necesitás ayuda con algo?
                   Usá el botón
-									<Link
-										href={'/publicaciones/new'}
-										className='bg-gradient-to-br from-pink-500 to-violet-600 p-2 rounded-full inline-flex items-center justify-center mx-2'
-									>
-										<FaPlus className='w-3 h-3 text-white inline' />
-									</Link>
+                                    <Link
+                                        href={'/publicaciones/crear'}
+                                        className='bg-gradient-to-br from-pink-500 to-violet-600 p-2 rounded-full inline-flex items-center justify-center mx-2'
+                                    >
+                                        <FaPlus className='w-3 h-3 text-white inline' />
+                                    </Link>
 									flotante para crear una publicación. Cada aporte ayuda a fortalecer la comunidad.
 								</p>
 								<div className='bg-muted/50 rounded-lg p-3 text-sm'>

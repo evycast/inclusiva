@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireAdmin } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 import { updatePostSchema } from '@/lib/validation/post'
-import { z } from 'zod'
 import { parseISO, isValid } from 'date-fns'
 
 const patchSchema = updatePostSchema
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const auth = requireAdmin(req)
+  const auth = await requireRole(req, ['admin'])
   if (!auth.ok) return auth.res
 
   const { id } = await params
@@ -19,18 +18,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
   const input = parsed.data
 
-  const dateStr = (input as any).date as string | undefined
-  const date = dateStr ? parseISO(dateStr) : undefined
-  const startDateStr = (input as any).startDate as string | undefined
-  const endDateStr = (input as any).endDate as string | undefined
-  const startDate = startDateStr ? parseISO(startDateStr) : undefined
-  const endDate = endDateStr ? parseISO(endDateStr) : undefined
+  const date = input.date ? parseISO(input.date) : undefined
+  const startDate = 'startDate' in input && input.startDate ? parseISO(input.startDate) : undefined
+  const endDate = 'endDate' in input && input.endDate ? parseISO(input.endDate) : undefined
 
   // Update scalar fields
   const updated = await prisma.post.update({
     where: { id },
     data: {
-      category: (input.category as any) ?? undefined,
+      category: input.category ?? undefined,
       title: input.title,
       subtitle: input.subtitle,
       description: input.description,
@@ -45,27 +41,27 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       tags: input.tags ? { set: input.tags } : undefined,
       urgent: input.urgent,
       date: date && isValid(date) ? date : undefined,
-      payment: input.payment ? { set: (input.payment as any) } : undefined,
+      payment: input.payment ? { set: input.payment } : undefined,
       barterAccepted: input.barterAccepted,
       startDate: startDate && isValid(startDate) ? startDate : undefined,
       endDate: endDate && isValid(endDate) ? endDate : undefined,
-      venue: (input as any).venue,
-      mode: (input as any).mode,
-      capacity: (input as any).capacity,
-      organizer: (input as any).organizer,
-      experienceYears: (input as any).experienceYears,
-      availability: (input as any).availability,
-      serviceArea: (input as any).serviceArea,
-      condition: (input as any).condition,
-      stock: (input as any).stock,
-      warranty: (input as any).warranty,
-      usageTime: (input as any).usageTime,
-      duration: (input as any).duration,
-      schedule: (input as any).schedule,
-      level: (input as any).level,
-      neededBy: (input as any).neededBy,
-      budgetRange: (input as any).budgetRange,
-      status: (input as any).status,
+      venue: 'venue' in input ? input.venue : undefined,
+      mode: 'mode' in input ? input.mode : undefined,
+      capacity: 'capacity' in input ? input.capacity : undefined,
+      organizer: 'organizer' in input ? input.organizer : undefined,
+      experienceYears: 'experienceYears' in input ? input.experienceYears : undefined,
+      availability: 'availability' in input ? input.availability : undefined,
+      serviceArea: 'serviceArea' in input ? input.serviceArea : undefined,
+      condition: 'condition' in input ? input.condition : undefined,
+      stock: 'stock' in input ? input.stock : undefined,
+      warranty: 'warranty' in input ? input.warranty : undefined,
+      usageTime: 'usageTime' in input ? input.usageTime : undefined,
+      duration: 'duration' in input ? input.duration : undefined,
+      schedule: 'schedule' in input ? input.schedule : undefined,
+      level: 'level' in input ? input.level : undefined,
+      neededBy: 'neededBy' in input ? input.neededBy : undefined,
+      budgetRange: 'budgetRange' in input ? input.budgetRange : undefined,
+      status: input.status,
     },
   })
 
@@ -77,11 +73,33 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     ])
   }
 
+  if (typeof input.status === 'string') {
+    await prisma.moderationLog.create({
+      data: {
+        actor: (auth.ok ? (auth as { ok: true; userId?: string }).userId : undefined) ?? 'admin',
+        action: `post_status_${input.status}`,
+        targetType: 'post',
+        targetId: id,
+        reason: typeof (body as { reason?: string })?.reason === 'string' ? body.reason : null,
+      },
+    })
+  } else {
+    await prisma.moderationLog.create({
+      data: {
+        actor: (auth.ok ? (auth as { ok: true; userId?: string }).userId : undefined) ?? 'admin',
+        action: 'post_update',
+        targetType: 'post',
+        targetId: id,
+        reason: null,
+      },
+    })
+  }
+
   return NextResponse.json({ data: updated })
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const auth = requireAdmin(req)
+  const auth = await requireRole(req, ['admin'])
   if (!auth.ok) return auth.res
   const { id } = await params
   await prisma.post.delete({ where: { id } })
