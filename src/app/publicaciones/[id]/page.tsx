@@ -9,9 +9,12 @@ import { usePostQuery } from '@/hooks/usePost';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import SafetyNoticeModal from '@/components/publications/SafetyNoticeModal';
+import { CategorySpecificInfo } from '@/components/publications/CategorySpecificInfo';
+import { ContactCard } from '@/components/publications/ContactCard';
+import { PaymentMethodsCard } from '@/components/publications/PaymentMethodsCard';
 import {
 	FaMapMarkerAlt,
 	FaStar,
@@ -102,38 +105,23 @@ function formatDateTime(iso?: string): string | null {
 	}
 }
 
-const paymentMeta: Record<string, { icon: React.ElementType; className: string; label: string }> = {
-	cash: { icon: FaMoneyBill, className: 'text-green-400', label: 'Efectivo' },
-	debit: { icon: FaCreditCard, className: 'text-blue-400', label: 'Débito' },
-	credit: { icon: FaCreditCard, className: 'text-purple-400', label: 'Crédito' },
-	transfer: { icon: FaUniversity, className: 'text-cyan-400', label: 'Transferencia' },
-	mercadopago: { icon: FaWallet, className: 'text-sky-400', label: 'Billetera virtual' },
-	crypto: { icon: FaBitcoin, className: 'text-orange-400', label: 'Cripto' },
-	barter: { icon: FaHandshake, className: 'text-amber-400', label: 'Canje' },
-	all: { icon: FaMoneyCheckAlt, className: 'text-slate-400', label: 'Todos los medios' },
-};
-
-const contactMeta: Record<string, { icon: React.ElementType; className: string; label: string }> = {
-	whatsapp: { icon: FaWhatsapp, className: 'text-green-400', label: 'WhatsApp' },
-	instagram: { icon: FaInstagram, className: 'text-pink-400', label: 'Instagram' },
-	telegram: { icon: FaTelegramPlane, className: 'text-blue-400', label: 'Telegram' },
-	email: { icon: FaEnvelope, className: 'text-slate-400', label: 'Email' },
-	website: { icon: FaGlobe, className: 'text-cyan-400', label: 'Sitio web' },
-};
+ 
 
 export default function PostDetailPage() {
-	const params = useParams();
-	const router = useRouter();
-	const [copied, setCopied] = useState(false);
-	const { data, isLoading, isError } = usePostQuery((params.id as string) || '');
-	const post: PostInput | undefined = data?.data;
+  const params = useParams();
+  const router = useRouter();
+  const [copied, setCopied] = useState(false);
+  const { data, isLoading, isError } = usePostQuery((params.id as string) || '');
+  const post: PostInput | undefined = data?.data;
 
 	// Si hay error o no se encuentra la publicación, redirige a /publicaciones
-	useEffect(() => {
-		if (!isLoading && (isError || !post)) {
-			router.replace('/publicaciones');
-		}
-	}, [isLoading, isError, post, router]);
+  useEffect(() => {
+    if (!isLoading && (isError || !post)) {
+      router.replace('/publicaciones');
+    }
+  }, [isLoading, isError, post, router]);
+
+  
 
 	const handleShare = async () => {
 		try {
@@ -193,6 +181,27 @@ export default function PostDetailPage() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
       <div className='max-w-5xl mx-auto'>
+        <SafetyNoticeModal
+          title={<span className='flex items-center gap-2'><FaShieldAlt className='text-amber-400' /> Advertencia y recomendaciones</span>}
+          description={<span>Cuidá tu seguridad y tomá decisiones informadas antes de avanzar.</span>}
+          acceptLabel={<span>Acepto y asumo la responsabilidad</span>}
+        >
+          <div className='space-y-3 text-sm text-slate-300'>
+            <ul className='list-disc pl-5 space-y-2'>
+              <li>Verificá identidad y referencias del proveedor.</li>
+              <li>Evitá pagos por adelantado sin garantías claras.</li>
+              <li>Usá medios de pago seguros y con comprobantes.</li>
+              <li>No compartas datos sensibles ni contraseñas.</li>
+              <li>Coordiná encuentros en lugares públicos y seguros.</li>
+              <li>Revisá reputación y experiencias previas de otros usuarios.</li>
+              <li>Guardá registros de conversaciones y acuerdos.</li>
+              <li>Si algo te parece sospechoso, no avances y reportá.</li>
+            </ul>
+            <p className='text-sm text-muted-foreground'>
+              No podemos garantizar la seguridad, calidad, veracidad o legalidad de los servicios, productos o información publicada. Usá tu criterio.
+            </p>
+          </div>
+        </SafetyNoticeModal>
 				{/* Header con botón de regreso */}
 				<div className='flex items-center justify-between p-6'>
 					<Link href='/publicaciones'>
@@ -226,11 +235,8 @@ export default function PostDetailPage() {
           <Image src={post.image} alt={post.title} fill className='object-cover' priority />
         </div>
 
-				{/* Contenido principal */}
+        {/* Contenido principal */}
           <div className='p-6 space-y-8'>
-            <div className='rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground'>
-              Importante: el contacto y la contratación se gestionan fuera de la plataforma. Usá tu criterio y precaución.
-            </div>
 					{/* Header de información */}
 					<div className='space-y-6'>
 						<div className='flex flex-wrap items-center justify-between gap-4'>
@@ -264,7 +270,7 @@ export default function PostDetailPage() {
 							<div className='text-slate-400 text-sm flex items-center gap-2'>
 								<FaCalendarAlt className='w-4 h-4' />
 								<span>
-									Publicado el
+									Publicado el {' '}
 									{post?.date
 										? new Date(post.date).toLocaleDateString('es-AR', {
 												day: 'numeric',
@@ -319,8 +325,7 @@ export default function PostDetailPage() {
 						)}
 					</div>
 
-							{/* Información específica por categoría */}
-							{renderCategorySpecificInfo(post)}
+                            <CategorySpecificInfo post={post} />
 
 							{/* Ubicación */}
 							<div className='space-y-3'>
@@ -350,116 +355,27 @@ export default function PostDetailPage() {
                                 </div>
                             )}
 
-                            <div className='space-y-3'>
-                                <h2 className='text-xl font-semibold text-slate-100'>Comentarios</h2>
-                                <CommentForm postId={params.id as string} />
-                                <div className='mt-4'>
-                                    <CommentList postId={params.id as string} />
-                                </div>
-                            </div>
+                            
 						</div>
 
 						{/* Sidebar de contacto y pago */}
 						<div className='space-y-6'>
-							{/* Contacto / redes sociales */}
-							{post.socials && post.socials.length > 0 && (
-								<Card className='bg-slate-800 border-slate-700'>
-									<CardContent className='p-6'>
-										<h3 className='text-lg font-semibold text-slate-100 mb-4'>Contacto</h3>
-                                        <div className='space-y-3 mb-6'>
-                                            {post.socials.map(({ name, url }, idx) => {
-                                                const meta = contactMeta[name] || {
-                                                    icon: FaExternalLinkAlt,
-                                                    className: 'text-slate-400',
-                                                    label: name,
-                                                };
-                                                const Icon = meta.icon;
-                                                const isLink = typeof url === 'string' && url.toLowerCase().startsWith('http');
+                            {post.socials && post.socials.length > 0 && (
+                                <ContactCard socials={post.socials} />
+                            )}
 
-                                                if (isLink) {
-                                                    return (
-                                                        <a
-                                                            key={`${name}-${idx}`}
-                                                            href={url}
-                                                            target='_blank'
-                                                            rel='noopener noreferrer'
-                                                            className='flex items-center gap-3 p-3 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-colors'
-                                                        >
-                                                            <Icon className={`${meta.className} text-lg`} />
-                                                            <div className='flex-1 min-w-0'>
-                                                                {/* Mostrar nombre de la red social */}
-                                                                <div className='text-slate-100 text-sm font-medium'>{meta.label}</div>
-                                                            </div>
-                                                            {/* Indicador de que abrirá una página */}
-                                                            <FaExternalLinkAlt className='text-slate-400' aria-label='Abrir página externa' />
-                                                        </a>
-                                                    );
-                                                }
-
-                                                return (
-                                                    <div
-                                                        key={`${name}-${idx}`}
-                                                        className='flex items-center gap-3 p-3 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-colors'
-                                                    >
-                                                        <Icon className={`${meta.className} text-lg`} />
-                                                        <div className='flex-1 min-w-0'>
-                                                            {/* Mostrar directamente el valor cuando no es enlace */}
-                                                            <div className='text-slate-100 text-sm truncate'>{url}</div>
-                                                        </div>
-                                                        <Button
-                                                            variant='outline'
-                                                            size='sm'
-                                                            className='text-slate-200 border-slate-600 hover:bg-slate-600'
-                                                            onClick={async () => {
-                                                                try {
-                                                                    await navigator.clipboard.writeText(url)
-                                                                    setCopied(true)
-                                                                    setTimeout(() => setCopied(false), 2000)
-                                                                } catch (e) {
-                                                                    console.error('Error al copiar', e)
-                                                                }
-                                                            }}
-                                                        >
-                                                            Copiar
-                                                        </Button>
-                                                        {copied && <span className='ml-2 text-xs text-green-400'>Copiado</span>}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-									</CardContent>
-								</Card>
-							)}
-
-							{/* Métodos de pago */}
-							{post.payment && post.payment.length > 0 && (
-								<Card className='bg-slate-800 border-slate-700'>
-									<CardContent className='p-6'>
-										<h3 className='text-lg font-semibold text-slate-100 mb-4'>Métodos de pago</h3>
-
-										<div className='space-y-3'>
-											{post.payment.map((method) => {
-												const meta = paymentMeta[method];
-												if (!meta) return null;
-												const Icon = meta.icon;
-												return (
-													<div key={method} className='flex items-center gap-4 p-2 rounded bg-slate-700/30 text-sm'>
-														<Icon className={`${meta.className}`} />
-														<span className='text-slate-300'>{meta.label}</span>
-													</div>
-												);
-											})}
-											{post.barterAccepted && !post.payment.includes('barter') && (
-												<div className='flex items-center gap-4 p-2 rounded bg-slate-700/30 text-sm'>
-													<FaHandshake className='text-amber-400' />
-													<span className='text-slate-300'>Acepta canje</span>
-												</div>
-											)}
-										</div>
-									</CardContent>
-								</Card>
-							)}
+                            {post.payment && post.payment.length > 0 && (
+                                <PaymentMethodsCard payment={post.payment} barterAccepted={post.barterAccepted} />
+                            )}
 						</div>
+					</div>
+				</div>
+
+				{/* Comentarios */}
+				<div className='px-6 mt-8 pb-12'>
+					<div className='max-w-5xl mx-auto space-y-4'>
+						<CommentForm postId={params.id as string} />
+						<CommentList postId={params.id as string} />
 					</div>
 				</div>
 			</div>
@@ -467,259 +383,4 @@ export default function PostDetailPage() {
 	);
 }
 
-function renderCategorySpecificInfo(post: PostInput) {
-	switch (post.category) {
-		case 'eventos': {
-			const eventPost = post;
-			return (
-				<div className='space-y-6'>
-					<div className='bg-card border border-border rounded-lg p-6'>
-						<h3 className='text-lg font-semibold text-slate-100 mb-4'>Detalles del Evento</h3>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<div className='space-y-3'>
-								<div className='flex items-center gap-4'>
-									<FaCalendarAlt className='text-blue-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Inicio</p>
-										<p className='text-slate-400 text-sm'>{formatDateTime(eventPost.startDate)}</p>
-									</div>
-								</div>
-								{eventPost.endDate && (
-									<div className='flex items-center gap-4'>
-										<FaCalendarCheck className='text-green-400' />
-										<div>
-											<p className='text-slate-200 font-medium'>Fin</p>
-											<p className='text-slate-400 text-sm'>{formatDateTime(eventPost.endDate)}</p>
-										</div>
-									</div>
-								)}
-							</div>
-							<div className='space-y-3'>
-								<div className='flex items-center gap-4'>
-									<FaMapMarkerAlt className='text-red-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Lugar</p>
-										<p className='text-slate-400 text-sm'>{eventPost.venue}</p>
-									</div>
-								</div>
-								<div className='flex items-center gap-4'>
-									<FaLaptop className='text-purple-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Modalidad</p>
-										<p className='text-slate-400 text-sm capitalize'>{eventPost.mode}</p>
-									</div>
-								</div>
-								{eventPost.capacity && (
-									<div className='flex items-center gap-4'>
-										<FaUsers className='text-cyan-400' />
-										<div>
-											<p className='text-slate-200 font-medium'>Capacidad</p>
-											<p className='text-slate-400 text-sm'>{eventPost.capacity} personas</p>
-										</div>
-									</div>
-								)}
-								{eventPost.organizer && (
-									<div className='flex items-center gap-4'>
-										<FaInfoCircle className='text-amber-400' />
-										<div>
-											<p className='text-slate-200 font-medium'>Organiza</p>
-											<p className='text-slate-400 text-sm'>{eventPost.organizer}</p>
-										</div>
-									</div>
-								)}
-							</div>
-						</div>
-					</div>
-				</div>
-			);
-		}
-
-		case 'servicios': {
-			const servicePost = post;
-			return (
-				<div className='space-y-6'>
-					<div className='bg-card border border-border rounded-lg p-6'>
-						<h3 className='text-lg font-semibold text-slate-100 mb-4'>Detalles del Servicio</h3>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							{servicePost.experienceYears && (
-								<div className='flex items-center gap-4'>
-									<FaMedal className='text-yellow-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Experiencia</p>
-										<p className='text-slate-400 text-sm'>{servicePost.experienceYears} años</p>
-									</div>
-								</div>
-							)}
-							{servicePost.availability && (
-								<div className='flex items-center gap-4'>
-									<FaClock className='text-green-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Disponibilidad</p>
-										<p className='text-slate-400 text-sm'>{servicePost.availability}</p>
-									</div>
-								</div>
-							)}
-							{servicePost.serviceArea && (
-								<div className='flex items-center gap-4'>
-									<FaMapMarkerAlt className='text-red-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Zona de servicio</p>
-										<p className='text-slate-400 text-sm'>{servicePost.serviceArea}</p>
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
-				</div>
-			);
-		}
-
-		case 'productos': {
-			const productPost = post;
-			return (
-				<div className='space-y-6'>
-					<div className='bg-card border border-border rounded-lg p-6'>
-						<h3 className='text-lg font-semibold text-slate-100 mb-4'>Detalles del Producto</h3>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<div className='flex items-center gap-4'>
-								<FaTag className='text-blue-400' />
-								<div>
-									<p className='text-slate-200 font-medium'>Condición</p>
-									<p className='text-slate-400 text-sm capitalize'>{productPost.condition}</p>
-								</div>
-							</div>
-							{productPost.stock && (
-								<div className='flex items-center gap-4'>
-									<FaBoxOpen className='text-green-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Stock</p>
-										<p className='text-slate-400 text-sm'>{productPost.stock} unidades</p>
-									</div>
-								</div>
-							)}
-							{productPost.warranty && (
-								<div className='flex items-center gap-4'>
-									<FaShieldAlt className='text-purple-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Garantía</p>
-										<p className='text-slate-400 text-sm'>{productPost.warranty}</p>
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
-				</div>
-			);
-		}
-
-		case 'usados': {
-			const usedPost = post;
-			return (
-				<div className='space-y-6'>
-					<div className='bg-card border border-border rounded-lg p-6'>
-						<h3 className='text-lg font-semibold text-slate-100 mb-4'>Detalles del Producto Usado</h3>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<div className='flex items-center gap-4'>
-								<FaTag className='text-orange-400' />
-								<div>
-									<p className='text-slate-200 font-medium'>Condición</p>
-									<p className='text-slate-400 text-sm capitalize'>{usedPost.condition}</p>
-								</div>
-							</div>
-							{usedPost.usageTime && (
-								<div className='flex items-center gap-4'>
-									<FaHistory className='text-cyan-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Tiempo de uso</p>
-										<p className='text-slate-400 text-sm'>{usedPost.usageTime}</p>
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
-				</div>
-			);
-		}
-
-		case 'cursos': {
-			const coursePost = post;
-			return (
-				<div className='space-y-6'>
-					<div className='bg-card border border-border rounded-lg p-6'>
-						<h3 className='text-lg font-semibold text-slate-100 mb-4'>Detalles del Curso</h3>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<div className='flex items-center gap-4'>
-								<FaLaptop className='text-purple-400' />
-								<div>
-									<p className='text-slate-200 font-medium'>Modalidad</p>
-									<p className='text-slate-400 text-sm capitalize'>{coursePost.mode}</p>
-								</div>
-							</div>
-							{coursePost.duration && (
-								<div className='flex items-center gap-4'>
-									<FaClock className='text-green-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Duración</p>
-										<p className='text-slate-400 text-sm'>{coursePost.duration}</p>
-									</div>
-								</div>
-							)}
-							{coursePost.schedule && (
-								<div className='flex items-center gap-4'>
-									<FaCalendarAlt className='text-blue-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Horarios</p>
-										<p className='text-slate-400 text-sm'>{coursePost.schedule}</p>
-									</div>
-								</div>
-							)}
-							{coursePost.level && (
-								<div className='flex items-center gap-4'>
-									<FaSignal className='text-amber-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Nivel</p>
-										<p className='text-slate-400 text-sm capitalize'>{coursePost.level}</p>
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
-				</div>
-			);
-		}
-
-		case 'pedidos': {
-			const requestPost = post;
-			return (
-				<div className='space-y-6'>
-					<div className='bg-card border border-border rounded-lg p-6'>
-						<h3 className='text-lg font-semibold text-slate-100 mb-4'>Detalles del Pedido</h3>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							{requestPost.neededBy && (
-								<div className='flex items-center gap-4'>
-									<FaCalendarAlt className='text-red-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Necesario para</p>
-										<p className='text-slate-400 text-sm'>{requestPost.neededBy}</p>
-									</div>
-								</div>
-							)}
-							{requestPost.budgetRange && (
-								<div className='flex items-center gap-4'>
-									<FaMoneyBill className='text-green-400' />
-									<div>
-										<p className='text-slate-200 font-medium'>Presupuesto</p>
-										<p className='text-slate-400 text-sm'>{requestPost.budgetRange}</p>
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
-				</div>
-			);
-		}
-
-		default:
-			return null;
-	}
-}
+ 
