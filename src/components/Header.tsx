@@ -16,7 +16,7 @@ export default async function Header() {
                             <FaHeart className='w-5 h-5 text-white' />
                         </div>
                         <div className='flex flex-col'>
-                            <span className='font-display text-xl sm:text-2xl font-semibold bg-gradient-to-r from-white via-pink-100 to-violet-200 bg-clip-text text-transparent tracking-tight transition-all duration-300 group-hover:from-pink-200 group-hover:via-pink-300 group-hover:to-violet-500'>
+                            <span className='font-display text-xl sm:text-2xl font-semibold text-gradient-brand tracking-tight transition-all duration-300'>
                                 Inclusiva
                             </span>
                             <span className='hidden us:inline-block text-xs sm:text-sm text-muted-foreground'>

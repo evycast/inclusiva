@@ -1,8 +1,8 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-/* Single-theme (dark) setup */
-/* No light/dark switching anymore */
+/* Single-theme (LIGHT) setup */
+/* Adapted from dark to light as requested */
 
 @theme {
 	--font-sans: var(--font-inter-sans), system-ui, -apple-system, sans-serif;
@@ -16,119 +16,106 @@
 	--breakpoint-xl: 1280px;
 	--breakpoint-2xl: 1536px;
 
-	--primary: #4c1d95;
-	--primary-300: #85198f;
-	--primary-700: #2b0f79;
+  /* Brand Colors - Vibrant & Inclusive */
+	--primary: #6d28d9; /* Violet */
+	--primary-300: #a78bfa;
+	--primary-700: #4c1d95;
 
-	--red: #e72e2e;
+	--red: #ef4444;
 	--red-700: #b91c1c;
 	--red-300: #fca5a5;
 
 	--pink: #ec4899;
-	--pink-700: #db2777;
+	--pink-700: #be185d;
 	--pink-300: #f9a8d4;
 
 	--blue: #3b82f6;
 	--blue-700: #1d4ed8;
 	--blue-300: #93c5fd;
 
-	--sky: #1daee7;
-	--sky-700: #1daee7;
-	--sky-300: #24befb;
+	--sky: #0ea5e9;
+	--sky-700: #0369a1;
+	--sky-300: #7dd3fc;
 
-	--yellow: #fbbf24;
-	--yellow-700: #d6951c;
-	--yellow-300: #fde68a;
+	--yellow: #eab308;
+	--yellow-700: #a16207;
+	--yellow-300: #fde047;
 
-	--violet: #5b21b6;
-	--violet-700: #4c1d95;
-	--violet-500: #5b21b6;
-	--violet-400: #6125c2;
-	--violet-300: #7c3aed;
+	--violet: #8b5cf6;
+	--violet-700: #6d28d9;
+	--violet-500: #8b5cf6;
+	--violet-400: #a78bfa;
+	--violet-300: #c4b5fd;
 
 	--orange: #f97316;
 	--orange-700: #c2410c;
 	--orange-300: #fdba74;
 
 	--green: #22c55e;
-	--green-700: #16a34a;
+	--green-700: #15803d;
 	--green-300: #86efac;
 
-	--lilac: #b388ff;
-	--lilac-700: #7d5bd1;
-	--lilac-300: #d6c2ff;
+	--lilac: #d8b4fe;
+	--lilac-700: #7e22ce;
+	--lilac-300: #e9d5ff;
 
-	--gray: #9e9e9e;
-	--color-gray-50: #fafafa;
-	--color-gray-100: #f5f5f5;
-	--color-gray-200: #eeeeee;
-	--color-gray-300: #e0e0e0;
-	--color-gray-400: #bdbdbd;
-	--color-gray-500: #9e9e9e;
-	--color-gray-600: #757575;
-	--color-gray-700: #616161;
-	--color-gray-800: #424242;
-	--color-gray-900: #212121;
-	--color-gray-950: #111111;
+  /* Grays adapted for Light Mode */
+	--gray: #64748b;
+	--color-gray-50: #f8fafc;
+	--color-gray-100: #f1f5f9;
+	--color-gray-200: #e2e8f0;
+	--color-gray-300: #cbd5e1;
+	--color-gray-400: #94a3b8;
+	--color-gray-500: #64748b;
+	--color-gray-600: #475569;
+	--color-gray-700: #334155;
+	--color-gray-800: #1e293b;
+	--color-gray-900: #0f172a;
+	--color-gray-950: #020617;
 
-	--white: #f8f8f8;
-	--black: #080808;
+	--white: #ffffff;
+	--black: #000000;
 }
 
 :root {
-	--red: #ef4444;
-	--pink: #ec4899;
-	--blue: #3b82f6;
-	--cyan: #22d3ee;
-	--amber: #f59e0b;
-	--orange: #f97316;
-	--green: #22c55e;
-	--teal: #10b981;
-	--violet: #7c3aed;
-	--indigo: #6366f1;
-	--purple: #8b5cf6;
-	--fuchsia: #d946ef;
-	--lilac: #b388ff;
-	--lilac-700: #7d5bd1;
-	--gray: #9e9e9e;
-	--slate-600: #475569;
-	--slate-700: #334155;
-	--slate-800: #182336;
-	--slate-900: #0f172a;
-	--radius: 0.625rem;
+  /* ShadCN / Tailwind Variables - LIGHT MODE OVERRIDES */
+	--background: oklch(0.985 0 0); /* White/Light Gray */
+	--foreground: oklch(0.205 0 0); /* Dark Slate */
+	--card: oklch(1 0 0);
+	--card-foreground: oklch(0.205 0 0);
+	--popover: oklch(1 0 0);
+	--popover-foreground: oklch(0.205 0 0);
+	--primary: oklch(0.488 0.243 264.376); /* Violet Primary */
+	--primary-foreground: oklch(0.985 0 0);
+	--secondary: oklch(0.97 0 0); /* Light Gray for secondary actions */
+	--secondary-foreground: oklch(0.205 0 0);
+	--muted: oklch(0.96 0 0);
+	--muted-foreground: oklch(0.556 0 0);
+	--accent: oklch(0.96 0 0);
+	--accent-foreground: oklch(0.205 0 0);
+	--destructive: oklch(0.577 0.245 27.325);
+	--destructive-foreground: oklch(0.985 0 0);
+	--border: oklch(0.922 0 0);
+	--input: oklch(0.922 0 0);
+	--ring: oklch(0.488 0.243 264.376); /* Violet Ring */
+	
+  /* Charts adapted to light */
+	--chart-1: oklch(0.646 0.222 41.116);
+	--chart-2: oklch(0.6 0.118 184.704);
+	--chart-3: oklch(0.398 0.07 227.392);
+	--chart-4: oklch(0.828 0.189 84.429);
+	--chart-5: oklch(0.769 0.188 70.08);
 
-	/* Dark palette now as default tokens */
-	--background: var(--slate-900);
-	--foreground: oklch(0.985 0 0);
-	--card: var(--slate-800);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
+	--radius: 0.75rem; /* Slightly more rounded for friendly feel */
+
+	--sidebar: oklch(0.985 0 0);
+	--sidebar-foreground: oklch(0.205 0 0);
 	--sidebar-primary: oklch(0.488 0.243 264.376);
 	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--sidebar-accent: oklch(0.96 0 0);
+	--sidebar-accent-foreground: oklch(0.205 0 0);
+	--sidebar-border: oklch(0.922 0 0);
+	--sidebar-ring: oklch(0.488 0.243 264.376);
 }
 
 @theme inline {
@@ -169,158 +156,6 @@
 	--radius-xl: calc(var(--radius) + 4px);
 }
 
-
-
-/* Header and accents grounded on tokens */
-.gradient-navbar {
-	background-color: var(--color-slate-950);
-	/* background-image: url('https://image.pollinations.ai/prompt/geometric%20lines%20tech%20pattern%20dark?width=600&height=200&seed=101&model=flux-realism&nologo=true'),
-		linear-gradient(135deg, var(--slate-700) 0%, var(--slate-800) 50%, var(--slate-500) 100%); */
-	/* background-size: cover, cover; */
-	/* background-blend-mode: soft-light; */
-	color: var(--foreground);
-}
-
-.gradient-cta {
-	background-color: #fcd34d;
-	background-image: linear-gradient(135deg, rgb(255, 168, 7) 0%, hsl(32, 94%, 56%) 50%, #f54418 100%);
-	color: #fff;
-	position: relative;
-}
-
-.gradient-heart {
-	background-color: #f59e0b;
-	background-image: linear-gradient(135deg, #fcd34d, #f5690b);
-	color: #fff;
-}
-
-.gradient-brand-text {
-	background-color: #f1f5f9;
-	background-image: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3, #54a0ff);
-	-webkit-background-clip: text;
-	background-clip: text;
-	color: transparent;
-}
-
-.gradient-cta-violet {
-	/* background-color: #8b5cf6;
-	background-image: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%); */
-  background-color: #f1f5f9;
-	background-image: linear-gradient(135deg, #a02424, #238f88, #1e768a, #378a63, #be902a, #963e8a, #2b5d9b);
-	color: #fff;
-	position: relative;
-}
-
-/* Utility class to hide horizontal scrollbars */
-.hide-scrollbar-x {
-	overflow-x: auto;
-	scrollbar-width: none; /* Firefox */
-	-ms-overflow-style: none; /* Internet Explorer 10+ */
-}
-
-.hide-scrollbar-x::-webkit-scrollbar {
-	display: none; /* WebKit browsers (Chrome, Safari, Edge) */
-}
-
-.bg-grad-red {
-	background-color: #7f1d1d;
-	background-image: linear-gradient(145deg, #b91c1c 0%, #991b1b 50%, #450a0a 100%);
-	color: #fef2f2;
-}
-.bg-grad-red:hover {
-	background-image: linear-gradient(145deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%);
-	transform: none;
-}
-.bg-grad-pink {
-	background-color: #831863;
-	background-image: linear-gradient(160deg, #be187e 0%, #9d1765 40%, #61083f 100%);
-	color: #fdf2f8;
-}
-.bg-grad-pink:hover {
-	background-image: linear-gradient(160deg, #ec48bb 0%, #be1879 40%, #9d1775 100%);
-	transform: none;
-}
-.bg-grad-blue {
-	background-color: #1e3a8a;
-	background-image: linear-gradient(130deg, #1d4ed8 0%, #1e40af 35%, #172554 100%);
-	color: #eff6ff;
-}
-.bg-grad-blue:hover {
-	background-image: linear-gradient(130deg, #3b82f6 0%, #1d4ed8 35%, #1e40af 100%);
-	transform: none;
-}
-.bg-grad-orange {
-	background-color: #c2410c;
-	background-image: linear-gradient(155deg, #ea580c 0%, #d97706 45%, #9a3412 100%);
-	color: #fff7ed;
-}
-.bg-grad-orange:hover {
-	background-image: linear-gradient(155deg, #f97316 0%, #ea580c 45%, #d97706 100%);
-	transform: none;
-}
-.bg-grad-green {
-	background-color: #14532d;
-	background-image: linear-gradient(140deg, #15803d 0%, #166534 40%, #052e16 100%);
-	color: #f0fdf4;
-}
-.bg-grad-green:hover {
-	background-image: linear-gradient(140deg, #22c55e 0%, #15803d 40%, #166534 100%);
-	transform: none;
-}
-.bg-grad-violet {
-	background-color: #4c1d95;
-	background-image: linear-gradient(150deg, #6d28d9 0%, #5b21b6 30%, #240c52 100%);
-	color: #f5f3ff;
-}
-.bg-grad-violet:hover {
-	background-image: linear-gradient(150deg, #8b5cf6 0%, #6d28d9 30%, #5b21b6 100%);
-	transform: none;
-}
-.bg-grad-gray {
-	background-color: #1e293b;
-	background-image: linear-gradient(125deg, #334155 0%, #1e293b 35%, #131d35 100%);
-	color: #f8fafc;
-}
-.bg-grad-gray:hover {
-	background-image: linear-gradient(125deg, #64748b 0%, #475569 35%, #334155 100%);
-	transform: none;
-}
-
-.category-overlay-red {
-	background-color: #7f1d1d;
-	background-image: linear-gradient(135deg, #b91c1c, #7f1d1d);
-}
-.category-overlay-pink {
-	background-color: #831843;
-	background-image: linear-gradient(135deg, #be185d, #831843);
-}
-.category-overlay-blue {
-	background-color: #1e3a8a;
-	background-image: linear-gradient(135deg, #1d4ed8, #1e3a8a);
-}
-.category-overlay-orange {
-	background-color: #c2410c;
-	background-image: linear-gradient(135deg, #ea580c, #c2410c);
-}
-.category-overlay-green {
-	background-color: #14532d;
-	background-image: linear-gradient(135deg, #15803d, #14532d);
-}
-.category-overlay-violet {
-	background-color: #4c1d95;
-	background-image: linear-gradient(135deg, #6d28d9, #4c1d95);
-}
-.category-overlay-gray {
-	background-color: var(--slate-700);
-	background-image: linear-gradient(135deg, var(--slate-600), var(--slate-800));
-}
-
-
-
-.font-display {
-	font-family: var(--font-poppins), var(--font-inter-sans), system-ui;
-}
-
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
@@ -333,115 +168,91 @@
 	body {
     @apply bg-background text-foreground min-h-[100svh] antialiased relative;
     font-family: var(--font-inter-sans), system-ui, -apple-system, sans-serif;
-  
   }
   button {
     @apply cursor-pointer
   }
 }
 
-/* Elementos decorativos de fondo para tiles - Imágenes AI generadas */
-.tile-decoration {
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
-	overflow: hidden;
-	border-radius: inherit;
-	background-size: cover;
-	background-position: center;
-	background-repeat: no-repeat;
-	mix-blend-mode: overlay;
+/* --- New Artistic & Friendly Utilities --- */
+
+/* Soft pastel gradients for backgrounds */
+.bg-gradient-rainbow-soft {
+  background: linear-gradient(108deg, #ff9a9e 0%, #fecfef 20%, #a1c4fd 40%, #c2e9fb 60%, #e0c3fc 80%, #ff9a9e 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
 }
 
-/* Eventos - Patrones abstractos festivos */
-.decoration-events {
-	background-image: url('https://image.pollinations.ai/prompt/abstract%20ribbons%20confetti%20celebration?width=400&height=300&seed=42&model=flux-realism&nologo=true');
-	opacity: 0.3;
+.bg-gradient-warm {
+  background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%);
 }
 
-/* Pedidos - Patrones de conexión abstractos */
-.decoration-requests {
-	background-image: url('https://image.pollinations.ai/prompt/network%20dots%20connections%20web?width=400&height=300&seed=43&model=flux-realism&nologo=true');
-	opacity: 0.3;
+.bg-gradient-cool {
+  background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
 }
 
-/* Servicios - Patrones técnicos abstractos */
-.decoration-services {
-	background-image: url('https://image.pollinations.ai/prompt/geometric%20crystal%20facets%20modern%20structure?width=400&height=300&seed=44&model=flux-realism&nologo=true');
-	opacity: 0.3;
+.glass-panel {
+  @apply bg-white/70 backdrop-blur-md border border-white/50 shadow-sm;
 }
 
-/* Productos - Patrones geométricos organizados */
-.decoration-products {
-	background-image: url('https://image.pollinations.ai/prompt/honeycomb%20hexagon%20grid%20pattern?width=400&height=300&seed=45&model=flux-realism&nologo=true');
-	opacity: 0.3;
+.shadow-friendly {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.02);
 }
 
-/* Cursos - Flujos de conocimiento abstractos */
-.decoration-courses {
-	background-image: url('https://image.pollinations.ai/prompt/flowing%20waves%20neural%20streams?width=400&height=300&seed=46&model=flux-realism&nologo=true');
-	opacity: 0.3;
+.shadow-friendly-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Usados - Patrones circulares de renovación */
-.decoration-used {
-	background-image: url('https://image.pollinations.ai/prompt/scattered%20circles%20triangles%20stars%20simple%20shapes%20floating%20darker?width=400&height=300&seed=47&model=flux-realism&nologo=true');
-	opacity: 0.3;
+.shadow-friendly-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.02);
 }
 
-/* Todos - Mosaico abstracto diverso */
-.decoration-all {
-	background-image: url('https://image.pollinations.ai/prompt/random%20dots%20lines%20polygons%20minimal%20scattered%20elements?width=400&height=300&seed=48&model=flux-realism&nologo=true');
-	opacity: 0.3;
-}
-
-/* Card hover glow: borde se ilumina sin mover la tarjeta */
-/* Utilidad para glow de borde en hover (sin translate) */
-.card-hover-glow {
-	box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-	transition: box-shadow 0.2s ease, border-color 0.2s ease;
-}
-.card-hover-glow:hover {
-	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 22px -8px rgba(0, 0, 0, 0.55);
-}
-
-/* Chips de información extra en slate */
-.info-chip {
-	@apply inline-flex items-center gap-1 rounded-md bg-slate-800/60 px-2 py-1 text-[11px] text-slate-300 ring-1 ring-slate-600/40;
-}
-.info-chip .icon {
-	@apply text-slate-400;
-}
-
-/* Jerarquía de texto en slate */
-.slate-title {
-	@apply text-slate-100;
-}
-.slate-subtitle {
-	@apply text-slate-300;
-}
-.slate-meta {
-	@apply text-slate-400;
-}
-
-/* Asegurar que clases viejas no hagan translate */
-.bg-grad-gray:hover {
-	transform: none;
-}
-
-/* Hero Header Styles */
-.hero-gradient-text {
-  background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+/* Typography Enhancements */
+.text-gradient-brand {
+  background: linear-gradient(to right, #ec4899, #8b5cf6, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradient-shift 8s ease-in-out infinite;
 }
 
-/* Hero Background Images */
-.hero-bg-abstract {
-  background-image: url("https://image.pollinations.ai/prompt/inclusive%20community%20gathering%20diverse%20people%20working%20together%20warm%20atmosphere%20natural%20lighting%20photorealistic?width=2000&height=800&model=flux-realism&enhance=true&nologo=true");
+/* Helper for hiding scrollbars */
+.hide-scrollbar-x {
+	overflow-x: auto;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+.hide-scrollbar-x::-webkit-scrollbar {
+	display: none;
+}
+
+/* Animations */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50% }
+  50% { background-position: 100% 50% }
+  100% { background-position: 0% 50% }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Decoration Overlays (Adapted for Light Mode) */
+/* Kept the structure but lighter opacity for light mode */
+.decoration-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.1; /* Very subtle */
+  mix-blend-mode: multiply;
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+}
+
+/* Chips */
+.info-chip {
+	@apply inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-600 ring-1 ring-slate-200;
 }

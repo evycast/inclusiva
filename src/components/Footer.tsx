@@ -65,7 +65,7 @@ export default function Footer() {
 						href='https://wa.me/5492236032601'
 						target='_blank'
 						rel='noopener noreferrer'
-						className='flex items-center gap-2 text-xs text-muted-foreground hover:text-gray-200 transition-colors duration-300 group'
+						className='flex items-center gap-2 text-xs text-muted-foreground hover:text-violet-600 transition-colors duration-300 group'
 					>
 						<span>Desarrollado con </span>
 						<FaHeart className='w-4 h-4 text-violet-500 group-hover:scale-110 transition-transform duration-300' />
