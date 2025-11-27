@@ -101,6 +101,8 @@ model User {
   email          String     @unique
   passwordHash   String
   name           String?
+  phone          String?
+  dni            String?
   role           Role       @default(user)
   status         UserStatus @default(pending)
   emailVerified  DateTime?
