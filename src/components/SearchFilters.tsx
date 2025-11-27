@@ -5,27 +5,11 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@
 import { Chip } from '@/components/Chip';
 import { Category } from '@/data/posts';
 import {
-	FaCalendarAlt,
 	FaSearch,
-	FaTools,
-	FaStore,
-	FaExchangeAlt,
-	FaGraduationCap,
 	FaBoxOpen,
-	FaFilter,
 	FaSortAmountDown,
 } from 'react-icons/fa';
-import { categoryGradients } from '@/utils/categoryPatterns';
-
-const categories: { key: Category; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] =
-	[
-		{ key: 'eventos', label: 'Eventos', icon: FaCalendarAlt },
-		{ key: 'servicios', label: 'Servicios', icon: FaTools },
-		{ key: 'productos', label: 'Productos', icon: FaStore },
-		{ key: 'usados', label: 'Usados', icon: FaExchangeAlt },
-		{ key: 'cursos', label: 'Cursos', icon: FaGraduationCap },
-		{ key: 'pedidos', label: 'Pedidos', icon: FaSearch },
-	];
+import { CATEGORIES, CategoryKey } from '@/lib/categories';
 
 type SortKey = 'recent' | 'rating' | 'priceAsc' | 'priceDesc';
 
@@ -48,6 +32,10 @@ export default function SearchFilters({
 	onSortByChange,
 	resultsCount,
 }: SearchFiltersProps) {
+	const categoriesList = (Object.keys(CATEGORIES) as CategoryKey[])
+		.filter((k): k is Exclude<CategoryKey, 'todos'> => k !== 'todos')
+		.map((k) => ({ key: k, def: CATEGORIES[k] }));
+
 	return (
 		<div className=' py-6  sm:py-8 flex flex-col gap-6'>
 			{/* Search and Sort Row */}
@@ -87,7 +75,7 @@ export default function SearchFilters({
 							selected={selected === 'all'}
 							onClick={() => onSelectedChange('all')}
 							className={`flex items-center gap-2.5 whitespace-nowrap relative overflow-hidden cursor-pointer ${
-								selected === 'all' ? categoryGradients['all'] : 'border-border'
+								selected === 'all' ? 'bg-slate-800 text-white' : 'border-border'
 							}`}
 						>
 							<div className='relative z-10 flex items-center gap-2.5 p-0.5'>
@@ -96,22 +84,22 @@ export default function SearchFilters({
 							</div>
 						</Chip>
 
-						{categories.map((category, i) => {
-							const IconComponent = category.icon;
-							const isSelected = selected === category.key;
-
+						{categoriesList.map(({ key, def }) => {
+							const IconComponent = def.icon;
+							const isSelected = selected === key;
+							const activeClass = `bg-${def.color}-500 text-white border-${def.color}-500`;
 							return (
 								<Chip
-									key={category.key}
+									key={key}
 									selected={isSelected}
-									onClick={() => onSelectedChange(category.key)}
+									onClick={() => onSelectedChange(key)}
 									className={`flex items-center gap-2.5 whitespace-nowrap relative overflow-hidden cursor-pointer ${
-										isSelected ? categoryGradients[category.key] : 'border-border'
+										isSelected ? activeClass : 'border-border'
 									}`}
 								>
 									<div className='relative z-10 flex items-center gap-2.5 p-0.5'>
 										<IconComponent size={15} />
-										<span className='font-medium'>{category.label}</span>
+										<span className='font-medium'>{def.label}</span>
 									</div>
 								</Chip>
 							);

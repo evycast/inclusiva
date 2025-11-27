@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { PostInput } from '@/lib/validation/post';
 import { categoryOptions, paymentMethodOptions } from '@/lib/validation/post';
-import { categoryGradients } from '@/utils/categoryPatterns';
+import { getCategory } from '@/lib/categories';
 import {
 	FaMapMarkerAlt,
 	FaStar,
@@ -50,24 +50,6 @@ type Category = typeof categoryOptions[number];
 type PaymentMethod = typeof paymentMethodOptions[number];
 type PostCardProps = { post: PostInput };
 
-const categoryLabel: Record<Category, string> = {
-	eventos: 'Eventos',
-	servicios: 'Servicios',
-	productos: 'Productos',
-	usados: 'Usados',
-	cursos: 'Cursos',
-	pedidos: 'Pedidos',
-};
-
-const categoryIcon: Record<Category, React.ElementType> = {
-	eventos: FaCalendarAlt,
-	servicios: FaTools,
-	productos: FaStore,
-	usados: FaExchangeAlt,
-	cursos: FaGraduationCap,
-	pedidos: FaSearch,
-};
-
 function formatPrice(value?: number, label?: string): string | null {
 	if (label && label.trim().length > 0) return label;
 	if (typeof value !== 'number') return null;
@@ -91,66 +73,40 @@ function mapConditionLabel(cond?: string): string | null {
 	return cond;
 }
 
-// Paleta sutil para chips (reutiliza la paleta de tags)
-const tagPalettes = [
-	{ bg: 'bg-sky-500/8', text: 'text-sky-200', ring: 'ring-1 ring-sky-500/15' },
-	{ bg: 'bg-emerald-500/8', text: 'text-emerald-200', ring: 'ring-1 ring-emerald-500/15' },
-	{ bg: 'bg-amber-500/8', text: 'text-amber-200', ring: 'ring-1 ring-amber-500/15' },
-	{ bg: 'bg-violet-500/8', text: 'text-violet-200', ring: 'ring-1 ring-violet-500/15' },
-	{ bg: 'bg-rose-500/8', text: 'text-rose-200', ring: 'ring-1 ring-rose-500/15' },
-	{ bg: 'bg-cyan-500/8', text: 'text-cyan-200', ring: 'ring-1 ring-cyan-500/15' },
-];
-function getTagClass(tag: string): string {
-	let hash = 0;
-	for (let i = 0; i < tag.length; i++) hash = (hash * 31 + tag.charCodeAt(i)) >>> 0;
-	const p = tagPalettes[hash % tagPalettes.length];
-	return `${p.bg} ${p.text} ${p.ring}`;
-}
-
-// Métodos de pago con colores unificados en gris
+// Métodos de pago con colores unificados
 const paymentMeta: Record<PaymentMethod, { icon: React.ElementType; className: string; label: string }> = {
 	cash: {
 		icon: FaMoneyBill,
-		className: 'text-slate-400',
+		className: 'text-slate-500',
 		label: 'Efectivo',
 	},
-	debit: { icon: FaCreditCard, className: 'text-slate-400', label: 'Débito' },
+	debit: { icon: FaCreditCard, className: 'text-slate-500', label: 'Débito' },
 	credit: {
 		icon: FaCreditCard,
-		className: 'text-slate-400',
+		className: 'text-slate-500',
 		label: 'Crédito',
 	},
 	transfer: {
 		icon: FaUniversity,
-		className: 'text-slate-400',
+		className: 'text-slate-500',
 		label: 'Transferencia',
 	},
 	mercadopago: {
 		icon: FaWallet,
-		className: 'text-slate-400',
+		className: 'text-slate-500',
 		label: 'Billetera virtual',
 	},
-	crypto: { icon: FaBitcoin, className: 'text-slate-400', label: 'Cripto' },
+	crypto: { icon: FaBitcoin, className: 'text-slate-500', label: 'Cripto' },
 	barter: {
 		icon: FaHandshake,
-		className: 'text-slate-400',
+		className: 'text-slate-500',
 		label: 'Canje',
 	},
 	all: {
 		icon: FaMoneyCheckAlt,
-		className: 'text-slate-400',
+		className: 'text-slate-500',
 		label: 'Todos los medios',
 	},
-};
-
-// Colores por categoría para badges tipo pill
-const categoryBadgeColors: Record<Category, string> = {
-	eventos: 'bg-red-500/15 text-red-300 ring-1 ring-red-500/25', // eventos = red
-	pedidos: 'bg-pink-500/15 text-pink-300 ring-1 ring-pink-500/25', // pedidos = pink
-	servicios: 'bg-blue-500/15 text-blue-300 ring-1 ring-blue-500/25', // servicios = blue
-	productos: 'bg-orange-500/15 text-orange-300 ring-1 ring-orange-500/25', // productos = orange
-	cursos: 'bg-green-500/15 text-green-300 ring-1 ring-green-500/25', // cursos = green
-	usados: 'bg-violet-500/15 text-violet-300 ring-1 ring-violet-500/25', // usados = violet
 };
 
 // Info extra por categoría (icono + valor) tipado estricto
@@ -166,22 +122,18 @@ function getExtraInfo(post: PostInput): InfoItem[] {
             const p = post;
 			const date = formatDateTime(p.startDate);
 			if (date) items.push({ key: 'date', icon: FaCalendarAlt, value: date });
-			// venue removido para no duplicar ubicación
-			// capacity removido por ahora
 			break;
 		}
     case 'servicios': {
             const p = post;
 			if (p.experienceYears != null) items.push({ key: 'exp', icon: FaMedal, value: `${p.experienceYears} años` });
 			if (p.availability) items.push({ key: 'avail', icon: FaClock, value: p.availability });
-			// serviceArea salta para unificar con location
 			break;
 		}
     case 'productos': {
             const p = post;
 			const cond = mapConditionLabel(p.condition);
 			if (cond) items.push({ key: 'cond', icon: FaTag, value: cond });
-			// stock y garantía removidos del chip
 			break;
 		}
     case 'usados': {
@@ -210,70 +162,59 @@ function getExtraInfo(post: PostInput): InfoItem[] {
 export default function PostCard({ post }: PostCardProps) {
 	const priceText = formatPrice(post.price, post.priceLabel);
 	const extra = getExtraInfo(post).slice(0, 6);
+	const categoryDef = getCategory(post.category);
+	const CategoryIcon = categoryDef.icon;
 
 	return (
 		<Link href={`/publicaciones/${post.id}`} className="block">
-			<Card className='group overflow-hidden bg-card border border-border transition-shadow card-hover-glow hover:border-white/30 cursor-pointer h-full'>
+			<Card className='group overflow-hidden bg-card border border-border/50 transition-all duration-300 hover:shadow-friendly-hover cursor-pointer h-full'>
 			<div className='relative aspect-[16/10] '>
-				<Image src={post.image} alt={post.title} fill sizes='(max-width: 640px) 100vw, 33vw' className='object-cover' />
+				<Image src={post.image} alt={post.title} fill sizes='(max-width: 640px) 100vw, 33vw' className='object-cover transition-transform duration-500 group-hover:scale-105' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/40 to-transparent' />
 				{/* Badge de categoría a la derecha con ícono */}
 				<div className='absolute right-3 top-3 flex items-center gap-2'>
-                    <Badge className={`text-white rounded-full p-3.5 ${categoryGradients[post.category]}`}>
-						{(() => {
-							const Icon = categoryIcon[post.category];
-							return <Icon className='mr-1' />;
-						})()}{' '}
-						{categoryLabel[post.category]}
+                    <Badge className={`text-white rounded-full px-3 py-1.5 shadow-sm bg-gradient-to-r ${categoryDef.gradient}`}>
+						<CategoryIcon className='mr-1.5 w-3.5 h-3.5' />
+						{categoryDef.label}
 					</Badge>
 				</div>
 				{/* Overlay autor + rating */}
 				<div className='absolute bottom-3 left-3'>
 					<div className='rounded-full relative'>
-						<div className='bg-black/70 pl-13 rounded-full pr-3 py-1.5 flex items-center top-1/2 -translate-y-1/2 ring-1 ring-white/10 shadow-md absolute'>
-							<span className='max-w-[140px] truncate inline-flex items-center text-xs font-medium text-white drop-shadow-[0_1px_1px_rgba(0,0,0,.6)] '>
+						<div className='bg-black/70 pl-13 rounded-full pr-3 py-1.5 flex items-center top-1/2 -translate-y-1/2 ring-1 ring-white/10 shadow-md absolute backdrop-blur-sm'>
+							<span className='max-w-[140px] truncate inline-flex items-center text-xs font-medium text-white drop-shadow-sm '>
 								{post.author}
 							</span>
-							{/* {typeof post.rating === 'number' && post.rating > 0 && (
-								<span className='ml-2 inline-flex items-center gap-1 text-xs font-medium text-white drop-shadow-[0_1px_1px_rgba(0,0,0,.6)] '>
-									<FaStar className='text-yellow-400' /> {post.rating}
-								</span>
-							)} */}
-              
 						</div>
-						<Avatar className='h-10 w-10 ring-1 ring-white/10 shadow-md'>
+						<Avatar className='h-10 w-10 ring-2 ring-white/20 shadow-md'>
 							<AvatarImage src={post.authorAvatar} alt={post.author} />
-							<AvatarFallback className='font-medium'>{post.author.slice(0, 2).toUpperCase()}</AvatarFallback>
+							<AvatarFallback className='font-medium bg-slate-100 text-slate-600'>{post.author.slice(0, 2).toUpperCase()}</AvatarFallback>
 						</Avatar>
 					</div>
 				</div>
 			</div>
 
-                {/* decorative strip removed to decouple from hardcoded data styles */}
-
 			<div className='p-4 h-full flex flex-col'>
-		{/* Jerarquía en slate: título > subtítulo o descripción */}
-		<h3 className='line-clamp-2 font-semibold text-slate-100 text-[15px] sm:text-base'>{post.title}</h3>
+		<h3 className='line-clamp-2 font-semibold text-slate-900 text-[15px] sm:text-base group-hover:text-primary transition-colors'>{post.title}</h3>
 		{post.subtitle ? (
-			<p className='mt-1 line-clamp-2 text-[13px] text-slate-300'>{post.subtitle}</p>
+			<p className='mt-1 line-clamp-2 text-[13px] text-slate-600'>{post.subtitle}</p>
 		) : (
 			post.description && (
-				<p className='mt-1 line-clamp-2 text-[13px] text-slate-300'>{post.description}</p>
+				<p className='mt-1 line-clamp-2 text-[13px] text-slate-600'>{post.description}</p>
 			)
 		)}
 
 				{/* Badges de información con colores por categoría */}
 				{extra.length > 0 && (
-					<div className='mt-2 flex flex-wrap items-center gap-2'>
+					<div className='mt-3 flex flex-wrap items-center gap-2'>
 						{extra.map((item) => {
 							const Icon = item.icon;
-							const badgeClass = categoryBadgeColors[post.category];
 							return (
 								<span
 									key={item.key}
-									className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[11px] ${badgeClass}`}
+									className={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[11px] font-medium border ${categoryDef.bgColor} ${categoryDef.textColor} ${categoryDef.borderColor}`}
 								>
-									<Icon className='opacity-90' />
+									<Icon className='opacity-80 text-[10px]' />
 									<span className='truncate max-w-[160px]'>{item.value}</span>
 								</span>
 							);
@@ -282,12 +223,12 @@ export default function PostCard({ post }: PostCardProps) {
 				)}
 
 				{/* Precio + métodos de pago */}
-				<div className='mt-auto pt-3'>
+				<div className='mt-auto pt-4'>
 					<div className='flex items-center justify-between gap-2'>
-						<div className='min-w-0 text-lg text-slate-100'>
-							{priceText && <span className='font-semibold'>{priceText}</span>}
+						<div className='min-w-0 text-lg text-slate-900'>
+							{priceText && <span className='font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-700'>{priceText}</span>}
 						</div>
-						<div className='flex items-center gap-2'>
+						<div className='flex items-center gap-1.5'>
 							{(post.payment ?? []).slice(0, 6).map((pm) => {
 								const meta = paymentMeta[pm as keyof typeof paymentMeta];
 								if (!meta) return null;
@@ -296,10 +237,10 @@ export default function PostCard({ post }: PostCardProps) {
 									<Tooltip key={pm}>
 										<TooltipTrigger asChild>
 											<span
-												className={`inline-flex h-8 w-8 items-center justify-center rounded-md ${meta.className}`}
+												className={`inline-flex h-7 w-7 items-center justify-center rounded-md hover:bg-slate-100 transition-colors ${meta.className}`}
 												aria-label={meta.label}
 											>
-												<Icon />
+												<Icon className="w-4 h-4" />
 											</span>
 										</TooltipTrigger>
 										<TooltipContent>{meta.label}</TooltipContent>
@@ -310,10 +251,10 @@ export default function PostCard({ post }: PostCardProps) {
 								<Tooltip>
 									<TooltipTrigger asChild>
 										<span
-											className={`inline-flex h-8 w-8 items-center justify-center rounded-md ${paymentMeta.barter.className}`}
+											className={`inline-flex h-7 w-7 items-center justify-center rounded-md hover:bg-slate-100 transition-colors ${paymentMeta.barter.className}`}
 											aria-label='Acepta canje'
 										>
-											<FaHandshake />
+											<FaHandshake className="w-4 h-4" />
 										</span>
 									</TooltipTrigger>
 									<TooltipContent>Acepta canje</TooltipContent>

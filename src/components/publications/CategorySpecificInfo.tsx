@@ -1,293 +1,199 @@
-"use client"
+'use client';
 
-import type { PostInput } from "@/lib/validation/post"
-import {
-  FaCalendarAlt,
-  FaCalendarCheck,
-  FaMapMarkerAlt,
-  FaLaptop,
-  FaUsers,
-  FaInfoCircle,
-  FaMedal,
-  FaClock,
-  FaTag,
-  FaBoxOpen,
-  FaShieldAlt,
-  FaHistory,
-  FaSignal,
-  FaMoneyBill,
-} from "react-icons/fa"
+import { Badge } from '@/components/ui/badge';
+import type { PostInput } from '@/lib/validation/post';
+import { FaCalendarAlt, FaCalendarCheck, FaMapMarkerAlt, FaUsers, FaLaptop, FaStore, FaTools, FaMedal, FaHistory, FaMoneyBill } from 'react-icons/fa';
 
-function formatDateTime(iso?: string): string | null {
-  if (!iso) return null
+type Props = { post: PostInput };
+
+function formatDate(iso?: string): string | null {
+  if (!iso) return null;
   try {
-    const d = new Date(iso)
-    return d.toLocaleString("es-AR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
+    const d = new Date(iso);
+    return d.toLocaleString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
   } catch {
-    return iso ?? null
+    return iso ?? null;
   }
 }
 
-export function CategorySpecificInfo({ post }: { post: PostInput }) {
-  switch (post.category) {
-    case "eventos": {
-      const p = post
-      return (
-        <div className="space-y-6">
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-slate-100 mb-4">Detalles del Evento</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <FaCalendarAlt className="text-blue-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Inicio</p>
-                    <p className="text-slate-400 text-sm">{formatDateTime(p.startDate)}</p>
-                  </div>
-                </div>
-                {p.endDate && (
-                  <div className="flex items-center gap-4">
-                    <FaCalendarCheck className="text-green-400" />
-                    <div>
-                      <p className="text-slate-200 font-medium">Fin</p>
-                      <p className="text-slate-400 text-sm">{formatDateTime(p.endDate)}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <FaMapMarkerAlt className="text-red-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Lugar</p>
-                    <p className="text-slate-400 text-sm">{p.venue}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <FaLaptop className="text-purple-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Modalidad</p>
-                    <p className="text-slate-400 text-sm capitalize">{p.mode}</p>
-                  </div>
-                </div>
-                {p.capacity && (
-                  <div className="flex items-center gap-4">
-                    <FaUsers className="text-cyan-400" />
-                    <div>
-                      <p className="text-slate-200 font-medium">Capacidad</p>
-                      <p className="text-slate-400 text-sm">{p.capacity} personas</p>
-                    </div>
-                  </div>
-                )}
-                {p.organizer && (
-                  <div className="flex items-center gap-4">
-                    <FaInfoCircle className="text-amber-400" />
-                    <div>
-                      <p className="text-slate-200 font-medium">Organiza</p>
-                      <p className="text-slate-400 text-sm">{p.organizer}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    }
+export default function CategorySpecificInfo({ post }: Props) {
+  if (!post?.category) return null;
 
-    case "servicios": {
-      const p = post
-      return (
-        <div className="space-y-6">
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-slate-100 mb-4">Detalles del Servicio</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {p.experienceYears && (
-                <div className="flex items-center gap-4">
-                  <FaMedal className="text-yellow-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Experiencia</p>
-                    <p className="text-slate-400 text-sm">{p.experienceYears} años</p>
-                  </div>
-                </div>
-              )}
-              {p.availability && (
-                <div className="flex items-center gap-4">
-                  <FaClock className="text-green-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Disponibilidad</p>
-                    <p className="text-slate-400 text-sm">{p.availability}</p>
-                  </div>
-                </div>
-              )}
-              {p.serviceArea && (
-                <div className="flex items-center gap-4">
-                  <FaMapMarkerAlt className="text-red-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Zona de servicio</p>
-                    <p className="text-slate-400 text-sm">{p.serviceArea}</p>
-                  </div>
-                </div>
-              )}
+  if (post.category === 'eventos') {
+    const start = formatDate(post.startDate);
+    const end = formatDate(post.endDate);
+    return (
+      <div className='space-y-3'>
+        <h2 className='text-xl font-semibold text-foreground'>Detalles del evento</h2>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
+          {start && (
+            <div className='flex items-center gap-2'>
+              <FaCalendarAlt className='text-blue-600 w-5 h-5' />
+              <span>Inicio: {start}</span>
             </div>
-          </div>
-        </div>
-      )
-    }
-
-    case "productos": {
-      const p = post
-      return (
-        <div className="space-y-6">
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-slate-100 mb-4">Detalles del Producto</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-4">
-                <FaTag className="text-blue-400" />
-                <div>
-                  <p className="text-slate-200 font-medium">Condición</p>
-                  <p className="text-slate-400 text-sm capitalize">{p.condition}</p>
-                </div>
-              </div>
-              {p.stock && (
-                <div className="flex items-center gap-4">
-                  <FaBoxOpen className="text-green-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Stock</p>
-                    <p className="text-slate-400 text-sm">{p.stock} unidades</p>
-                  </div>
-                </div>
-              )}
-              {p.warranty && (
-                <div className="flex items-center gap-4">
-                  <FaShieldAlt className="text-purple-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Garantía</p>
-                    <p className="text-slate-400 text-sm">{p.warranty}</p>
-                  </div>
-                </div>
-              )}
+          )}
+          {end && (
+            <div className='flex items-center gap-2'>
+              <FaCalendarCheck className='text-blue-600 w-5 h-5' />
+              <span>Fin: {end}</span>
             </div>
-          </div>
-        </div>
-      )
-    }
-
-    case "usados": {
-      const p = post
-      return (
-        <div className="space-y-6">
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-slate-100 mb-4">Detalles del Producto Usado</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-4">
-                <FaTag className="text-orange-400" />
-                <div>
-                  <p className="text-slate-200 font-medium">Condición</p>
-                  <p className="text-slate-400 text-sm capitalize">{p.condition}</p>
-                </div>
-              </div>
-              {p.usageTime && (
-                <div className="flex items-center gap-4">
-                  <FaHistory className="text-cyan-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Tiempo de uso</p>
-                    <p className="text-slate-400 text-sm">{p.usageTime}</p>
-                  </div>
-                </div>
-              )}
+          )}
+          {post.venue && (
+            <div className='flex items-center gap-2'>
+              <FaMapMarkerAlt className='text-red-600 w-5 h-5' />
+              <span>Lugar: {post.venue}</span>
             </div>
-          </div>
-        </div>
-      )
-    }
-
-    case "cursos": {
-      const p = post
-      return (
-        <div className="space-y-6">
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-slate-100 mb-4">Detalles del Curso</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-4">
-                <FaLaptop className="text-purple-400" />
-                <div>
-                  <p className="text-slate-200 font-medium">Modalidad</p>
-                  <p className="text-slate-400 text-sm capitalize">{p.mode}</p>
-                </div>
-              </div>
-              {p.duration && (
-                <div className="flex items-center gap-4">
-                  <FaClock className="text-green-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Duración</p>
-                    <p className="text-slate-400 text-sm">{p.duration}</p>
-                  </div>
-                </div>
-              )}
-              {p.schedule && (
-                <div className="flex items-center gap-4">
-                  <FaCalendarAlt className="text-blue-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Horarios</p>
-                    <p className="text-slate-400 text-sm">{p.schedule}</p>
-                  </div>
-                </div>
-              )}
-              {p.level && (
-                <div className="flex items-center gap-4">
-                  <FaSignal className="text-amber-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Nivel</p>
-                    <p className="text-slate-400 text-sm capitalize">{p.level}</p>
-                  </div>
-                </div>
-              )}
+          )}
+          {post.mode && (
+            <div className='flex items-center gap-2'>
+              <FaLaptop className='text-violet-600 w-5 h-5' />
+              <span>Modalidad: {post.mode}</span>
             </div>
-          </div>
-        </div>
-      )
-    }
-
-    case "pedidos": {
-      const p = post
-      return (
-        <div className="space-y-6">
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-slate-100 mb-4">Detalles del Pedido</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {p.neededBy && (
-                <div className="flex items-center gap-4">
-                  <FaCalendarAlt className="text-red-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Necesario para</p>
-                    <p className="text-slate-400 text-sm">{p.neededBy}</p>
-                  </div>
-                </div>
-              )}
-              {p.budgetRange && (
-                <div className="flex items-center gap-4">
-                  <FaMoneyBill className="text-green-400" />
-                  <div>
-                    <p className="text-slate-200 font-medium">Presupuesto</p>
-                    <p className="text-slate-400 text-sm">{p.budgetRange}</p>
-                  </div>
-                </div>
-              )}
+          )}
+          {typeof post.capacity === 'number' && (
+            <div className='flex items-center gap-2'>
+              <FaUsers className='text-emerald-600 w-5 h-5' />
+              <span>Capacidad: {post.capacity}</span>
             </div>
-          </div>
+          )}
+          {post.organizer && (
+            <div className='flex items-center gap-2'>
+              <FaMedal className='text-amber-600 w-5 h-5' />
+              <span>Organiza: {post.organizer}</span>
+            </div>
+          )}
         </div>
-      )
-    }
-
-    default:
-      return null
+      </div>
+    );
   }
-}
 
+  if (post.category === 'servicios') {
+    return (
+      <div className='space-y-3'>
+        <h2 className='text-xl font-semibold text-foreground'>Detalles del servicio</h2>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
+          {typeof post.experienceYears === 'number' && (
+            <div className='flex items-center gap-2'>
+              <FaTools className='text-violet-600 w-5 h-5' />
+              <span>Experiencia: {post.experienceYears} años</span>
+            </div>
+          )}
+          {post.availability && (
+            <div className='flex items-center gap-2'>
+              <FaCalendarAlt className='text-emerald-600 w-5 h-5' />
+              <span>Disponibilidad: {post.availability}</span>
+            </div>
+          )}
+          {post.serviceArea && (
+            <div className='flex items-center gap-2'>
+              <FaMapMarkerAlt className='text-red-600 w-5 h-5' />
+              <span>Zona: {post.serviceArea}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (post.category === 'productos') {
+    return (
+      <div className='space-y-3'>
+        <h2 className='text-xl font-semibold text-foreground'>Detalles del producto</h2>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
+          {post.condition && (
+            <div className='flex items-center gap-2'>
+              <FaStore className='text-pink-600 w-5 h-5' />
+              <span>Condición: {post.condition}</span>
+            </div>
+          )}
+          {typeof post.stock === 'number' && (
+            <div className='flex items-center gap-2'>
+              <Badge variant='outline' className='border-border'>Stock: {post.stock}</Badge>
+            </div>
+          )}
+          {post.warranty && (
+            <div className='flex items-center gap-2'>
+              <FaMedal className='text-amber-600 w-5 h-5' />
+              <span>Garantía: {post.warranty}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (post.category === 'usados') {
+    return (
+      <div className='space-y-3'>
+        <h2 className='text-xl font-semibold text-foreground'>Detalles del usado</h2>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
+          {post.usageTime && (
+            <div className='flex items-center gap-2'>
+              <FaHistory className='text-orange-600 w-5 h-5' />
+              <span>Tiempo de uso: {post.usageTime}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (post.category === 'cursos') {
+    return (
+      <div className='space-y-3'>
+        <h2 className='text-xl font-semibold text-foreground'>Detalles del curso</h2>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
+          {post.mode && (
+            <div className='flex items-center gap-2'>
+              <FaLaptop className='text-green-600 w-5 h-5' />
+              <span>Modalidad: {post.mode}</span>
+            </div>
+          )}
+          {post.duration && (
+            <div className='flex items-center gap-2'>
+              <FaCalendarAlt className='text-green-600 w-5 h-5' />
+              <span>Duración: {post.duration}</span>
+            </div>
+          )}
+          {post.schedule && (
+            <div className='flex items-center gap-2'>
+              <FaCalendarCheck className='text-green-600 w-5 h-5' />
+              <span>Cronograma: {post.schedule}</span>
+            </div>
+          )}
+          {post.level && (
+            <div className='flex items-center gap-2'>
+              <FaMedal className='text-amber-600 w-5 h-5' />
+              <span>Nivel: {post.level}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (post.category === 'pedidos') {
+    const needed = formatDate(post.neededBy);
+    return (
+      <div className='space-y-3'>
+        <h2 className='text-xl font-semibold text-foreground'>Detalles del pedido</h2>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
+          {needed && (
+            <div className='flex items-center gap-2'>
+              <FaCalendarAlt className='text-red-600 w-5 h-5' />
+              <span>Necesidad hasta: {needed}</span>
+            </div>
+          )}
+          {post.budgetRange && (
+            <div className='flex items-center gap-2'>
+              <FaMoneyBill className='text-red-600 w-5 h-5' />
+              <span>Presupuesto: {post.budgetRange}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}

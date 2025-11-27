@@ -145,41 +145,41 @@ export default function AdminPostsPage() {
 					<Input placeholder='Buscar por texto…' value={q} onChange={(e) => setQ(e.target.value)} />
 				</div>
 				<Select value={category || 'any'} onValueChange={(v) => setCategory(v === 'any' ? '' : v)}>
-					<SelectGroup>
-						<SelectLabel>Categoría</SelectLabel>
-						<SelectTrigger className='w-full'>
-							<SelectValue placeholder='Categoría' />
-						</SelectTrigger>
-					</SelectGroup>
+					<SelectTrigger className='w-full md:w-[200px]'>
+						<SelectValue placeholder='Categoría' />
+					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value='any'>Todas</SelectItem>
-						{categoryOptions.map((c) => (
-							<SelectItem className='py-2.5' key={c} value={c}>
-								{c}
-							</SelectItem>
-						))}
+						<SelectGroup>
+							<SelectLabel>Categoría</SelectLabel>
+							<SelectItem value='any'>Todas</SelectItem>
+							{categoryOptions.map((c) => (
+								<SelectItem className='py-2.5' key={c} value={c}>
+									{c}
+								</SelectItem>
+							))}
+						</SelectGroup>
 					</SelectContent>
 				</Select>
 				<Select value={status || 'any'} onValueChange={(v) => setStatus(v === 'any' ? '' : (v as Status))}>
-					<SelectGroup>
-						<SelectLabel>Estado</SelectLabel>
-						<SelectTrigger className='w-full'>
-							<SelectValue placeholder='Estado' />
-						</SelectTrigger>
-					</SelectGroup>
+					<SelectTrigger className='w-full md:w-[200px]'>
+						<SelectValue placeholder='Estado' />
+					</SelectTrigger>
 					<SelectContent>
-						<SelectItem className='py-2.5' value='any'>
-							Todos
-						</SelectItem>
-						<SelectItem className='py-2.5' value='pending'>
-							Pendiente
-						</SelectItem>
-						<SelectItem className='py-2.5' value='approved'>
-							Aprobado
-						</SelectItem>
-						<SelectItem className='py-2.5' value='rejected'>
-							Rechazado
-						</SelectItem>
+						<SelectGroup>
+							<SelectLabel>Estado</SelectLabel>
+							<SelectItem className='py-2.5' value='any'>
+								Todos
+							</SelectItem>
+							<SelectItem className='py-2.5' value='pending'>
+								Pendiente
+							</SelectItem>
+							<SelectItem className='py-2.5' value='approved'>
+								Aprobado
+							</SelectItem>
+							<SelectItem className='py-2.5' value='rejected'>
+								Rechazado
+							</SelectItem>
+						</SelectGroup>
 					</SelectContent>
 				</Select>
 			</div>

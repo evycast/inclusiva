@@ -14,15 +14,15 @@ export function HeroSection() {
 					<div className='flex-[1.2] text-center lg:text-left space-y-8'>
 						<Badge
 							variant='outline'
-							className='px-4 py-2 text-sm rounded-full bg-white/50 backdrop-blur border-primary/20 text-primary animate-in fade-in slide-in-from-bottom-4 duration-700'
+							className='px-4 py-2 text-sm rounded-full bg-card/50 backdrop-blur border-primary/20 text-primary animate-in fade-in slide-in-from-bottom-4 duration-700'
 						>
 							<Sparkles className='w-4 h-4 mr-2 text-primary' />
 							Comunidad Inclusiva
 						</Badge>
-						<h1 className='text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl md:text-6xl lg:text-7xl leading-tight'>
+						<h1 className='text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl leading-tight'>
 							Conectá, colaborá y <span className='text-gradient-brand'>crecé sin barreras</span>
 						</h1>
-						<p className='max-w-2xl mx-auto lg:mx-0 text-xl text-slate-600 leading-relaxed'>
+						<p className='max-w-2xl mx-auto lg:mx-0 text-xl text-muted-foreground leading-relaxed'>
 							Un espacio seguro y moderado donde la comunidad se une. Ofrecé tus servicios, vendé productos, encontrá
 							lo que necesitás o sumate a eventos increíbles.
 						</p>
@@ -42,7 +42,7 @@ export function HeroSection() {
 								asChild
 								size='lg'
 								variant='outline'
-								className='h-14 px-8 text-lg rounded-2xl border-2 border-slate-200 bg-white/80 hover:bg-white hover:border-primary/30 text-slate-700 hover:text-primary shadow-sm hover:shadow-md hover:-translate-y-1 transition-all w-full sm:w-auto font-bold cursor-pointer'
+								className='h-14 px-8 text-lg rounded-2xl border-2 border-border bg-card/80 hover:bg-card hover:border-primary/30 text-muted-foreground hover:text-primary shadow-sm hover:shadow-md hover:-translate-y-1 transition-all w-full sm:w-auto font-bold cursor-pointer'
 							>
 								<a href='/publicaciones'>
 									<Search className='mr-2 h-5 w-5' />
@@ -54,11 +54,11 @@ export function HeroSection() {
 
 					<div className='flex-[0.8] relative w-full max-w-md lg:max-w-full animate-float'>
 						{/* Illustration - Cleaner Vector Style */}
-						<div className='relative z-10 rounded-[2.5rem] overflow-hidden shadow-2xl bg-white p-4 rotate-2 hover:rotate-0 transition-transform duration-500'>
+						<div className='relative z-10 rounded-[2.5rem] overflow-hidden shadow-2xl bg-card p-4 rotate-2 hover:rotate-0 transition-transform duration-500'>
 							<img
 								src='https://image.pollinations.ai/prompt/flat%20vector%20illustration%20of%20diverse%20young%20people%20collaborating%20happy%20minimalist%20vibrant%20colors%20white%20background%20clean%20lines%20dribbble%20style?width=800&height=800&nologo=true&seed=101'
 								alt='Comunidad Inclusiva'
-								className='w-full h-auto rounded-[2rem] bg-slate-50'
+								className='w-full h-auto rounded-[2rem] bg-muted'
 							/>
 						</div>
 						{/* Decorative elements behind */}

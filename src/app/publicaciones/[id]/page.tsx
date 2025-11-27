@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { PostInput } from '@/lib/validation/post';
-import { categoryGradients } from '@/utils/categoryPatterns';
+import { getCategory } from '@/lib/categories';
 import { usePostQuery } from '@/hooks/usePost';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,9 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import SafetyNoticeModal from '@/components/publications/SafetyNoticeModal';
-import { CategorySpecificInfo } from '@/components/publications/CategorySpecificInfo';
 import { ContactCard } from '@/components/publications/ContactCard';
 import { PaymentMethodsCard } from '@/components/publications/PaymentMethodsCard';
+import CategorySpecificInfo from '@/components/publications/CategorySpecificInfo';
 import {
 	FaMapMarkerAlt,
 	FaStar,
@@ -64,24 +64,6 @@ import CommentList from '@/components/CommentList';
 
 type PageProps = { params: { id: string } };
 
-const categoryLabel: Record<string, string> = {
-	eventos: 'Eventos',
-	servicios: 'Servicios',
-	productos: 'Productos',
-	usados: 'Usados',
-	cursos: 'Cursos',
-	pedidos: 'Pedidos',
-};
-
-const categoryIcon: Record<string, React.ElementType> = {
-	eventos: FaCalendarAlt,
-	servicios: FaTools,
-	productos: FaStore,
-	usados: FaExchangeAlt,
-	cursos: FaGraduationCap,
-	pedidos: FaSearch,
-};
-
 function formatPrice(value?: number, label?: string): string | null {
 	if (label && label.trim().length > 0) return label;
 	if (typeof value !== 'number') return null;
@@ -105,7 +87,7 @@ function formatDateTime(iso?: string): string | null {
 	}
 }
 
- 
+
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -135,7 +117,7 @@ export default function PostDetailPage() {
 
 	if (isLoading) {
 		return (
-			<div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
+			<div className='min-h-screen bg-background'>
 				<div className='max-w-5xl mx-auto p-6'>
 					<Skeleton className='h-[40vh] rounded-2xl' />
 					<div className='mt-6 space-y-4'>
@@ -149,14 +131,15 @@ export default function PostDetailPage() {
 
 	if (isError || !post) {
 		return (
-			<div className='min-h-screen flex items-center justify-center'>
+			<div className='min-h-screen flex items-center justify-center bg-background'>
 				<div className='text-center text-destructive'>No se encontró la publicación</div>
 			</div>
 		);
 	}
 
 	const priceText = formatPrice(post.price, post.priceLabel);
-	const CategoryIcon = categoryIcon[post.category];
+    const categoryDef = getCategory(post.category);
+	const CategoryIcon = categoryDef.icon;
 
 	const statusMeta = (() => {
 		const s = post.status;
@@ -164,14 +147,14 @@ export default function PostDetailPage() {
 		if (s === 'pending') {
 			return {
 				label: 'Pendiente de aprobación',
-				className: 'border-amber-500 text-amber-400 bg-amber-500/15',
+				className: 'border-amber-500 text-amber-600 bg-amber-50',
 				Icon: FaClock,
 			};
 		}
 		if (s === 'rejected') {
 			return {
 				label: 'Rechazada',
-				className: 'border-red-500 text-red-400 bg-red-500/15',
+				className: 'border-red-500 text-red-600 bg-red-50',
 				Icon: FaTimesCircle,
 			};
 		}
@@ -179,14 +162,14 @@ export default function PostDetailPage() {
 	})();
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
+    <div className='min-h-screen bg-background pb-12'>
       <div className='max-w-5xl mx-auto'>
         <SafetyNoticeModal
-          title={<span className='flex items-center gap-2'><FaShieldAlt className='text-amber-400' /> Advertencia y recomendaciones</span>}
+          title={<span className='flex items-center gap-2'><FaShieldAlt className='text-amber-500' /> Advertencia y recomendaciones</span>}
           description={<span>Cuidá tu seguridad y tomá decisiones informadas antes de avanzar.</span>}
           acceptLabel={<span>Acepto y asumo la responsabilidad</span>}
         >
-          <div className='space-y-3 text-sm text-slate-300'>
+          <div className='space-y-3 text-sm text-muted-foreground'>
             <ul className='list-disc pl-5 space-y-2'>
               <li>Verificá identidad y referencias del proveedor.</li>
               <li>Evitá pagos por adelantado sin garantías claras.</li>
@@ -208,7 +191,7 @@ export default function PostDetailPage() {
 						<Button
 							variant='outline'
 							size='sm'
-							className='border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors'
+							className='border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors'
 						>
 							<FaArrowLeft className='mr-2' />
 							Volver
@@ -219,19 +202,19 @@ export default function PostDetailPage() {
 						<Button
 							variant='ghost'
 							size='sm'
-							className='text-slate-400 hover:text-white'
+							className='text-muted-foreground hover:text-foreground'
 							onClick={handleShare}
 						>
 							<FaShare className='w-4 h-4' />
 						</Button>
 						{copied && (
-							<span className='text-xs text-green-400' aria-live='polite'>Enlace copiado</span>
+							<span className='text-xs text-green-600' aria-live='polite'>Enlace copiado</span>
 						)}
 					</div>
 				</div>
 
         {/* Imagen principal */}
-        <div className='relative h-[40vh] lg:h-[50vh] mx-6 rounded-2xl overflow-hidden'>
+        <div className='relative h-[40vh] lg:h-[50vh] mx-6 rounded-2xl overflow-hidden shadow-sm border border-border/50'>
           <Image src={post.image} alt={post.title} fill className='object-cover' priority />
         </div>
 
@@ -242,13 +225,12 @@ export default function PostDetailPage() {
 						<div className='flex flex-wrap items-center justify-between gap-4'>
 							<div className='flex flex-wrap items-center gap-3'>
 								<Badge
-									variant='secondary'
-									className={`text-white rounded-full px-4 py-2 text-sm font-medium ${
-										categoryGradients[post.category]
+									className={`text-white rounded-full px-4 py-2 text-sm font-medium border-0 bg-gradient-to-r ${
+										categoryDef.gradient
 									}`}
 								>
 									<CategoryIcon className='mr-2 w-4 h-4' />
-									{categoryLabel[post.category]}
+									{categoryDef.label}
 								</Badge>
 								{statusMeta && (
 									<Badge
@@ -267,7 +249,7 @@ export default function PostDetailPage() {
 								)}
 							</div>
 
-							<div className='text-slate-400 text-sm flex items-center gap-2'>
+							<div className='text-muted-foreground text-sm flex items-center gap-2'>
 								<FaCalendarAlt className='w-4 h-4' />
 								<span>
 									Publicado el {' '}
@@ -282,33 +264,26 @@ export default function PostDetailPage() {
 							</div>
 						</div>
 
-						<h1 className='text-2xl lg:text-3xl font-bold text-white leading-tight'>{post.title}</h1>
+						<h1 className='text-2xl lg:text-3xl font-bold text-foreground leading-tight'>{post.title}</h1>
 
 						<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6'>
 							<div className='flex items-center gap-4'>
-								<Avatar className='w-12 h-12 ring-2 ring-slate-600'>
+								<Avatar className='w-12 h-12 ring-2 ring-border'>
 									<AvatarImage src={post.authorAvatar} alt={post.author} />
-									<AvatarFallback className='bg-slate-700 text-white font-semibold'>
+									<AvatarFallback className='bg-muted text-muted-foreground font-semibold'>
 										{post.author.slice(0, 2).toUpperCase()}
 									</AvatarFallback>
 								</Avatar>
 								<div className='flex flex-col'>
-									<span className='font-semibold text-slate-200'>{post.author}</span>
-									{/* {typeof post.rating === 'number' && post.rating > 0 && (
-										<div className='flex items-center gap-1'>
-											<FaStar className='text-yellow-400 w-4 h-4' />
-											<span className='font-medium text-slate-300'>{post.rating}</span>
-											{post.ratingCount && <span className='text-sm text-slate-400'>({post.ratingCount} reseñas)</span>}
-										</div>
-									)} */}
+									<span className='font-semibold text-foreground'>{post.author}</span>
 								</div>
 							</div>
 
-							{priceText && <div className='text-3xl lg:text-4xl font-bold text-green-400'>{priceText}</div>}
+							{priceText && <div className='text-3xl lg:text-4xl font-bold text-primary'>{priceText}</div>}
 						</div>
 					</div>
 
-					<Separator className='bg-slate-700' />
+					<Separator className='bg-border' />
 
 					{/* Grid de contenido */}
 					<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
@@ -316,12 +291,12 @@ export default function PostDetailPage() {
 						<div className='lg:col-span-2 space-y-6'>
 					{/* Descripción: mostrar subtítulo y descripción */}
 					<div className='space-y-3'>
-						<h2 className='text-xl font-semibold text-slate-100'>Descripción</h2>
+						<h2 className='text-xl font-semibold text-foreground'>Descripción</h2>
 						{post.subtitle && (
-							<p className='text-slate-200 leading-relaxed text-base font-medium'>{post.subtitle}</p>
+							<p className='text-foreground/80 leading-relaxed text-base font-medium'>{post.subtitle}</p>
 						)}
 						{post.description && (
-							<p className='text-slate-300 leading-relaxed text-base'>{post.description}</p>
+							<p className='text-muted-foreground leading-relaxed text-base'>{post.description}</p>
 						)}
 					</div>
 
@@ -329,9 +304,9 @@ export default function PostDetailPage() {
 
 							{/* Ubicación */}
 							<div className='space-y-3'>
-								<h2 className='text-xl font-semibold text-slate-100'>Ubicación</h2>
-								<div className='flex items-center gap-3 text-slate-300'>
-									<FaMapMarkerAlt className='text-red-400 w-5 h-5' />
+								<h2 className='text-xl font-semibold text-foreground'>Ubicación</h2>
+								<div className='flex items-center gap-3 text-muted-foreground'>
+									<FaMapMarkerAlt className='text-red-500 w-5 h-5' />
 									<span className='text-base'>{post.location}</span>
 								</div>
 							</div>
@@ -339,13 +314,13 @@ export default function PostDetailPage() {
 							{/* Tags */}
                             {post.tags && post.tags.length > 0 && (
                                 <div className='space-y-3'>
-                                    <h2 className='text-xl font-semibold text-slate-100'>Etiquetas</h2>
+                                    <h2 className='text-xl font-semibold text-foreground'>Etiquetas</h2>
                                     <div className='flex flex-wrap gap-2'>
                                         {post.tags.map((tag, index) => (
                                             <Badge
                                                 key={index}
                                                 variant='outline'
-                                                className='border-slate-600 text-slate-300 hover:bg-slate-700'
+                                                className='border-border text-muted-foreground hover:bg-muted'
                                             >
                                                 <FaTag className='mr-2 text-xs' />
                                                 {tag}

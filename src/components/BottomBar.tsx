@@ -81,7 +81,7 @@ const BottomBar = () => {
                     </div>
                 </PopoverContent>
             </Popover>
-            <div className='bg-slate-900 p-4 rounded-full md:bg-transparent'>
+            <div className='bg-card border border-border p-4 rounded-full md:bg-transparent md:border-none md:p-0 md:shadow-none shadow-lg'>
                 <Link href='/publicar' className='flex flex-col items-center justify-center group'>
                     <div className='w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 via-red-500 to-purple-600 flex items-center justify-center shadow-lg transform transition-all duration-200 group-hover:scale-105 group-active:scale-95 animate-in hover:animate-none'>
                         <FaPlus className='w-7 h-7 text-white ' />

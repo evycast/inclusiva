@@ -62,8 +62,8 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-3rem)] flex items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
-      <Card className="w-full max-w-md border-border/50 bg-card/ py-6">
+    <div className="min-h-[calc(100vh-3rem)] flex items-center justify-center p-6 bg-background">
+      <Card className="w-full max-w-md border-border bg-card">
         <CardHeader>
           <CardTitle className="text-2xl font-semibold">
             <span className="bg-gradient-to-r from-fuchsia-400 via-cyan-300 to-violet-400 bg-clip-text text-transparent">Admin</span>

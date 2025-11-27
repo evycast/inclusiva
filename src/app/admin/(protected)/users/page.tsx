@@ -110,17 +110,17 @@ export default function AdminUsersPage() {
           <Input placeholder='Buscar…' value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <Select value={role || 'any'} onValueChange={(v) => setRole((v === 'any' ? '' : v) as UserRole)}>
-          <SelectGroup>
-            <SelectLabel>Rol</SelectLabel>
-            <SelectTrigger className='w-full'>
-              <SelectValue placeholder='Rol' />
-            </SelectTrigger>
-          </SelectGroup>
+          <SelectTrigger className='w-full'>
+            <SelectValue placeholder='Rol' />
+          </SelectTrigger>
           <SelectContent>
-            <SelectItem value='any'>Todos</SelectItem>
-            <SelectItem value='user'>User</SelectItem>
-            <SelectItem value='moderator'>Moderator</SelectItem>
-            <SelectItem value='admin'>Admin</SelectItem>
+            <SelectGroup>
+              <SelectLabel>Rol</SelectLabel>
+              <SelectItem value='any'>Todos</SelectItem>
+              <SelectItem value='user'>User</SelectItem>
+              <SelectItem value='moderator'>Moderator</SelectItem>
+              <SelectItem value='admin'>Admin</SelectItem>
+            </SelectGroup>
           </SelectContent>
         </Select>
         <div />

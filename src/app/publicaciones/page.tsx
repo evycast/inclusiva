@@ -19,14 +19,14 @@ export default function PostsListPage() {
 
 	useEffect(() => {
 		const t = setTimeout(() => setDebouncedQ(q), 300);
-    window.scrollTo(0, 0);
+		window.scrollTo(0, 0);
 		return () => clearTimeout(t);
 	}, [q]);
 
 	// Reset page to 1 when filters change
 	useEffect(() => {
-    setPage(1);
-    window.scrollTo(0, 0);
+		setPage(1);
+		window.scrollTo(0, 0);
 	}, [selectedCategory, debouncedQ, sort]);
 
 	const {
@@ -52,7 +52,7 @@ export default function PostsListPage() {
 				<div className='absolute inset-0 hero-bg-abstract' />
 
 				{/* Overlay gradiente suave */}
-				<div className='absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/70 to-slate-900' />
+				<div className='absolute inset-0 bg-gradient-to-b from-black/40 via-black/70 to-background' />
 
 				{/* Contenido del header */}
 				<div className='relative z-10 text-center space-y-6 px-4 sm:px-6 max-w-4xl mx-auto'>
@@ -61,7 +61,7 @@ export default function PostsListPage() {
 							Inclusiva
 						</span>
 					</h1>
-					<p className='text-lg sm:text-xl lg:text-2xl text-gray-200 max-w-2xl mx-auto leading-relaxed'>
+					<p className='text-lg sm:text-xl lg:text-2xl text-white max-w-2xl mx-auto leading-relaxed'>
 						Descubrí eventos, servicios, productos y más de nuestra increible comunidad
 					</p>
 				</div>
