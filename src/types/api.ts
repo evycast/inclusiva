@@ -18,3 +18,20 @@ export type ApiPost = PostInput & { id: string }
 
 export type ListResponse = { data: ApiPost[]; pagination: ApiPagination }
 export type DetailResponse = { data: ApiPost }
+
+export type UserRole = 'user' | 'moderator' | 'admin'
+export type UserStatus = 'pending' | 'approved' | 'rejected'
+export type ApiUser = {
+  id: string
+  email: string
+  name?: string | null
+  phone?: string | null
+  dni?: string | null
+  role: UserRole
+  status: UserStatus
+  emailVerified?: string | null
+  verifiedPublic: boolean
+  createdAt: string
+  updatedAt: string
+}
+export type UsersListResponse = { data: ApiUser[]; pagination: ApiPagination }
