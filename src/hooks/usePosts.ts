@@ -25,8 +25,9 @@ export function usePostsQuery(params: {
   sort?: UiSortKey
   page?: number
   pageSize?: number
+  enabled?: boolean
 }) {
-  const { category = 'all', q = '', sort = 'recent', page = 1, pageSize = 12 } = params
+  const { category = 'all', q = '', sort = 'recent', page = 1, pageSize = 12, enabled = true } = params
   const sp = new URLSearchParams()
   if (category && category !== 'all') sp.set('category', category)
   if (q) sp.set('q', q)
@@ -43,5 +44,6 @@ export function usePostsQuery(params: {
       return res.json() as Promise<ListResponse>
     },
     staleTime: 60_000,
+    enabled,
   })
 }

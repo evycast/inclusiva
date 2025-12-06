@@ -8,59 +8,19 @@ import { getCategory } from '@/lib/categories';
 import { usePostQuery } from '@/hooks/usePost';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import SafetyNoticeModal from '@/components/publications/SafetyNoticeModal';
 import { ContactCard } from '@/components/publications/ContactCard';
 import { PaymentMethodsCard } from '@/components/publications/PaymentMethodsCard';
 import CategorySpecificInfo from '@/components/publications/CategorySpecificInfo';
-import {
-	FaMapMarkerAlt,
-	FaStar,
-	FaMoneyBill,
-	FaCreditCard,
-	FaUniversity,
-	FaBitcoin,
-	FaHandshake,
-	FaClock,
-	FaTag,
-	FaWallet,
-	FaMoneyCheckAlt,
-	FaCalendarAlt,
-	FaUsers,
-	FaLaptop,
-	FaShieldAlt,
-	FaBoxOpen,
-	FaHistory,
-	FaMedal,
-	FaSignal,
-	FaQuestionCircle,
-	FaGlobe,
-	FaShoppingCart,
-	FaCalendarCheck,
-	FaInfoCircle,
-	FaEnvelope,
-	FaWhatsapp,
-	FaInstagram,
-	FaTelegramPlane,
-	FaPaperPlane,
-	FaTools,
-	FaStore,
-	FaExchangeAlt,
-	FaGraduationCap,
-	FaSearch,
-	FaArrowLeft,
-	FaExternalLinkAlt,
-	FaPhone,
-	FaHeart,
-	FaShare,
-	FaTimesCircle,
-} from 'react-icons/fa';
+import { FaMapMarkerAlt, FaClock, FaTag, FaCalendarAlt, FaShieldAlt, FaInfoCircle, FaArrowLeft, FaShare, FaFlag, FaTimesCircle } from 'react-icons/fa';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import CommentForm from '@/components/CommentForm';
-import CommentList from '@/components/CommentList';
+// Comentarios removidos
 
 type PageProps = { params: { id: string } };
 
@@ -105,7 +65,7 @@ export default function PostDetailPage() {
 
   
 
-	const handleShare = async () => {
+  const handleShare = async () => {
 		try {
 			await navigator.clipboard.writeText(window.location.href);
 			setCopied(true);
@@ -113,7 +73,13 @@ export default function PostDetailPage() {
 		} catch (e) {
 			console.error('Error al copiar el enlace:', e);
 		}
-	};
+  };
+
+  const [reportOpen, setReportOpen] = useState(false)
+  const [reportReason, setReportReason] = useState('')
+  const [reportMessage, setReportMessage] = useState('')
+  const [sendingReport, setSendingReport] = useState(false)
+  const handleReport = () => setReportOpen(true)
 
 	if (isLoading) {
 		return (
@@ -198,19 +164,27 @@ export default function PostDetailPage() {
 						</Button>
 					</Link>
 
-					<div className='flex items-center gap-2'>
-						<Button
-							variant='ghost'
-							size='sm'
-							className='text-muted-foreground hover:text-foreground'
-							onClick={handleShare}
-						>
-							<FaShare className='w-4 h-4' />
-						</Button>
-						{copied && (
-							<span className='text-xs text-green-600' aria-live='polite'>Enlace copiado</span>
-						)}
-					</div>
+          <div className='flex items-center gap-2'>
+            <Button
+              variant='ghost'
+              size='sm'
+              className='text-muted-foreground hover:text-foreground'
+              onClick={handleShare}
+            >
+              <FaShare className='w-4 h-4' />
+            </Button>
+            <Button
+              variant='ghost'
+              size='sm'
+              className='text-muted-foreground hover:text-foreground'
+              onClick={handleReport}
+            >
+              <FaFlag className='w-4 h-4 text-red-500' />
+            </Button>
+            {copied && (
+              <span className='text-xs text-green-600' aria-live='polite'>Enlace copiado</span>
+            )}
+          </div>
 				</div>
 
         {/* Imagen principal */}
@@ -346,16 +320,46 @@ export default function PostDetailPage() {
 					</div>
 				</div>
 
-				{/* Comentarios */}
-				<div className='px-6 mt-8 pb-12'>
-					<div className='max-w-5xl mx-auto space-y-4'>
-						<CommentForm postId={params.id as string} />
-						<CommentList postId={params.id as string} />
-					</div>
-				</div>
+          <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Reportar publicación</DialogTitle>
+              </DialogHeader>
+              <div className='space-y-3'>
+                <Label htmlFor='reportReason'>Motivo</Label>
+                <Textarea id='reportReason' value={reportReason} onChange={(e) => setReportReason(e.target.value)} placeholder='Ej.: Contenido inapropiado, información falsa, etc.' />
+                <Label htmlFor='reportMessage'>Detalle (opcional)</Label>
+                <Textarea id='reportMessage' value={reportMessage} onChange={(e) => setReportMessage(e.target.value)} placeholder='Agregá contexto, enlaces o evidencia.' />
+                <div className='flex justify-end gap-2'>
+                  <Button variant='outline' onClick={() => setReportOpen(false)}>Cancelar</Button>
+                  <Button
+                    disabled={sendingReport || !reportReason.trim()}
+                    onClick={async () => {
+                      setSendingReport(true)
+                      try {
+                        const res = await fetch('/api/reports', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ postId: params.id as string, reason: reportReason.trim(), message: reportMessage.trim() || undefined }),
+                        })
+                        if (!res.ok) throw new Error('Error al enviar reporte')
+                        setReportOpen(false)
+                        setReportReason('')
+                        setReportMessage('')
+                      } catch (e) {
+                        console.error(e)
+                      } finally {
+                        setSendingReport(false)
+                      }
+                    }}
+                  >Enviar</Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Comentarios removidos */}
 			</div>
 		</div>
 	);
 }
-
- 

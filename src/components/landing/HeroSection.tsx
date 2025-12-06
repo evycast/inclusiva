@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Sparkles, PlusCircle, Search } from 'lucide-react';
@@ -32,23 +33,23 @@ export function HeroSection() {
 								asChild
 								size='lg'
 								className='h-14 px-8 text-lg rounded-2xl bg-primary hover:bg-primary-700 shadow-lg hover:shadow-primary/30 hover:-translate-y-1 transition-all w-full sm:w-auto font-bold cursor-pointer'
-							>
-								<a href='/publicaciones/crear'>
-									<PlusCircle className='mr-2 h-5 w-5' />
-									Publicar Ahora
-								</a>
-							</Button>
+                            >
+                                <Link href='/publicaciones/crear/'>
+                                    <PlusCircle className='mr-2 h-5 w-5' />
+                                    Publicar Ahora
+                                </Link>
+                            </Button>
 							<Button
 								asChild
 								size='lg'
 								variant='outline'
 								className='h-14 px-8 text-lg rounded-2xl border-2 border-border bg-card/80 hover:bg-card hover:border-primary/30 text-muted-foreground hover:text-primary shadow-sm hover:shadow-md hover:-translate-y-1 transition-all w-full sm:w-auto font-bold cursor-pointer'
-							>
-								<a href='/publicaciones'>
-									<Search className='mr-2 h-5 w-5' />
-									Explorar Todo
-								</a>
-							</Button>
+                            >
+                                <Link href='/publicaciones/'>
+                                    <Search className='mr-2 h-5 w-5' />
+                                    Explorar Todo
+                                </Link>
+                            </Button>
 						</div>
 					</div>
 

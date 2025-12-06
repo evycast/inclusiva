@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { getCategory, CategoryKey } from '@/lib/categories';
 
 const CATEGORY_MAPPING: { key: CategoryKey; href: string }[] = [
-	{ key: 'servicios', href: 'services' },
-	{ key: 'productos', href: 'products' },
-	{ key: 'usados', href: 'used' },
-	{ key: 'eventos', href: 'events' },
-	{ key: 'cursos', href: 'courses' },
-	{ key: 'pedidos', href: 'requests' },
+    { key: 'servicios', href: 'servicios' },
+    { key: 'productos', href: 'productos' },
+    { key: 'usados', href: 'usados' },
+    { key: 'eventos', href: 'eventos' },
+    { key: 'cursos', href: 'cursos' },
+    { key: 'pedidos', href: 'pedidos' },
 ];
 
 export function CategoriesSection() {
@@ -35,7 +35,7 @@ export function CategoriesSection() {
 								// Construct classes dynamically based on category color name to match original look but using centralized defs
 								// def.color is like 'violet', 'pink', etc.
 								color={`bg-${def.color}-50 text-${def.color}-600 hover:bg-${def.color}-100`}
-								href={`/publicaciones?category=${href}`}
+                                href={`/publicaciones?category=${key}`}
 							/>
 						);
 					})}
@@ -76,4 +76,3 @@ function CategoryCard({
 		</Link>
 	);
 }
-

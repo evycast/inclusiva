@@ -14,7 +14,7 @@ export type Category = typeof categoryOptions[number]
 export type PaymentMethod = typeof paymentMethodOptions[number]
 
 // API Post se basa en el PostInput del schema y asegura id presente
-export type ApiPost = PostInput & { id: string }
+export type ApiPost = PostInput & { id: string; expiresAt?: string | null; authorVerified?: boolean; createdAt?: string }
 
 export type ListResponse = { data: ApiPost[]; pagination: ApiPagination }
 export type DetailResponse = { data: ApiPost }
@@ -24,6 +24,7 @@ export type UserStatus = 'pending' | 'approved' | 'rejected'
 export type ApiUser = {
   id: string
   email: string
+  avatar?: string | null
   name?: string | null
   phone?: string | null
   dni?: string | null

@@ -124,7 +124,7 @@ const socialsSchema = z
 				message: 'Debe agregar al menos un contacto completo',
 			});
 		}
-	})
+})
 	.transform((arr) => arr.filter((i) => !isBlank(i.name) && !isBlank(i.url)));
 
 const basePostSchema = z
@@ -274,6 +274,7 @@ export const updatePostSchema = z.object({
 	urgent: z.boolean().optional(),
 	date: z.string().optional(),
 	status: z.enum(['pending', 'approved', 'rejected']).optional(),
+	expiresAt: z.string().optional(),
 	// Alinear con creación: permitir cadena libre
 	socials: z.array(z.object({ name: z.string().min(1), url: z.string().min(1) })).optional(),
 	payment: z.array(z.enum(paymentMethodOptions)).optional(),

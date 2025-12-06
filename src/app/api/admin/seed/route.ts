@@ -5,6 +5,7 @@ import { posts, type Post } from '@/data/posts'
 import { Prisma } from '@prisma/client'
 import { parseISO, isValid } from 'date-fns'
 import { tagOptions } from '@/lib/validation/post'
+import { hashPassword } from '@/lib/password'
 
 function normalize(str: string) {
   return str
@@ -21,7 +22,55 @@ function mapContactToSocials(contact?: Record<string, string | undefined>): { na
   return entries.map(([name, url]) => ({ name, url }))
 }
 
-function toCreateData(p: Post): Prisma.PostCreateManyInput {
+function authorEmail(author: string): string {
+  const slug = normalize(author).replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '')
+  return `${slug || 'author'}.seed@example.com`
+}
+
+type AuthorInfo = { id: string; avatar: string }
+async function ensureAuthorUsers(): Promise<Map<string, AuthorInfo>> {
+  const uniqueAuthors = Array.from(new Set(posts.map(p => p.author)))
+  const avatarByAuthor = new Map<string, string>()
+  for (const p of posts) {
+    if (p.author && p.authorAvatar) avatarByAuthor.set(p.author, p.authorAvatar)
+  }
+  const map = new Map<string, AuthorInfo>()
+  for (const author of uniqueAuthors) {
+    const email = authorEmail(author)
+    const existing = await prisma.user.findUnique({ where: { email } })
+    if (existing) {
+      map.set(author, { id: existing.id, avatar: existing.avatar ?? (avatarByAuthor.get(author) ?? `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(author)}&backgroundType=gradient&radius=50&fontWeight=700`) })
+      continue
+    }
+    const pw = await hashPassword('seed12345')
+    const pPhone = Math.random() < 0.85
+    const pDni = Math.random() < 0.85
+    const statusRoll = Math.random()
+    const status = statusRoll < 0.85 ? 'approved' : statusRoll < 0.95 ? 'pending' : 'rejected'
+    const emailVerified = Math.random() < 0.7 ? new Date() : null
+    const verifiedPublic = Math.random() < 0.5
+    const avatar = avatarByAuthor.get(author) ?? `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(author)}&backgroundType=gradient&radius=50&fontWeight=700`
+    const created = await prisma.user.create({
+      data: {
+        email,
+        passwordHash: pw,
+        name: author,
+        avatar,
+        role: 'user',
+        status,
+        emailVerified,
+        verifiedPublic,
+        phone: pPhone ? `+54 9 11 ${Math.floor(10000000 + Math.random()*89999999)}` : null,
+        dni: pDni ? `${Math.floor(10000000 + Math.random()*89999999)}` : null,
+      },
+      select: { id: true },
+    })
+    map.set(author, { id: created.id, avatar })
+  }
+  return map
+}
+
+function toCreateData(p: Post, author?: AuthorInfo): Prisma.PostCreateManyInput {
   const date = p.date ? parseISO(p.date) : undefined
   const startDate = 'startDate' in p && p.startDate ? parseISO(p.startDate) : undefined
   const endDate = 'endDate' in p && p.endDate ? parseISO(p.endDate) : undefined
@@ -43,7 +92,7 @@ function toCreateData(p: Post): Prisma.PostCreateManyInput {
     description: p.description || '',
     image: p.image,
     author: p.author,
-    authorAvatar: p.authorAvatar ?? 'https://example.com/avatar.png',
+    authorAvatar: (author?.avatar ?? p.authorAvatar) ?? `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(p.author)}&backgroundType=gradient&radius=50&fontWeight=700`,
     location: p.location,
     price: p.price ?? null,
     priceLabel: p.priceLabel ?? null,
@@ -54,7 +103,27 @@ function toCreateData(p: Post): Prisma.PostCreateManyInput {
     date: date && isValid(date) ? date : null,
     payment: (p.payment ?? []) as unknown as Prisma.PostCreateManyInput['payment'],
     barterAccepted: !!p.barterAccepted,
-    status: 'approved' as const,
+    status: (() => {
+      const r = Math.random();
+      const s = r < 0.85 ? 'approved' : r < 0.95 ? 'pending' : 'rejected'
+      return s as 'approved' | 'pending' | 'rejected'
+    })(),
+    authorId: author?.id ?? null,
+    expiresAt: (() => {
+      const baseDate = (date && isValid(date)) ? date : (endDate && isValid(endDate)) ? endDate : new Date()
+      const days = 15 + Math.floor(Math.random() * 75)
+      return new Date(baseDate.getTime() + 1000 * 60 * 60 * 24 * days)
+    })(),
+    privateInfo: 'Seed sample',
+    contactVisibility: Math.random() < 0.8 ? 'public' : 'gated',
+    contactFlow: Math.random() < 0.5 ? 'seller_contacts' : 'buyer_contacts_first',
+    commitCommunity: Math.random() < 0.9,
+    commitRespectRules: Math.random() < 0.95,
+    createdIp: '127.0.0.1',
+    createdUserAgent: 'seed-script',
+    createdAcceptLanguage: 'es-AR',
+    createdTimezone: 'America/Argentina/Buenos_Aires',
+    createdReferrer: '/admin/seed',
   }
 
   const event = p.category === 'eventos' ? {
@@ -111,7 +180,28 @@ export async function POST(req: NextRequest) {
   if (!auth.ok) return auth.res
 
   try {
-    const data = posts.map(p => toCreateData(p))
+    await prisma.socialLink.deleteMany({})
+    await prisma.report.deleteMany({})
+    await prisma.post.deleteMany({})
+    await prisma.moderationLog.deleteMany({})
+    await prisma.user.deleteMany({ where: { role: { not: 'admin' } } })
+
+    // Crear admin por defecto si no existe
+    const existingAdmin = await prisma.user.findFirst({ where: { role: 'admin' } })
+    if (!existingAdmin) {
+      const pw = await hashPassword('admin123')
+      await prisma.user.create({
+        data: {
+          email: 'admin@admin.com',
+          passwordHash: pw,
+          role: 'admin',
+          status: 'approved',
+          name: 'Admin',
+        },
+      })
+    }
+    const authorMap = await ensureAuthorUsers()
+    const data = posts.map(p => toCreateData(p, authorMap.get(p.author)))
 
     await prisma.post.createMany({ data })
 

@@ -46,18 +46,29 @@ export function buildPostWhere(params: ListParams, opts?: { includeNonApproved?:
         where.mode = params.mode as Mode;
     }
 
-	if (params.q && params.q.trim().length > 0) {
-		const qRaw = params.q.trim();
-		const q = normalize(qRaw);
-		where.OR = [
-			{ title: { contains: q, mode: 'insensitive' } },
-			{ subtitle: { contains: q, mode: 'insensitive' } },
-			{ description: { contains: q, mode: 'insensitive' } },
-			{ location: { contains: q, mode: 'insensitive' } },
-			{ author: { contains: q, mode: 'insensitive' } },
-			{ tags: { has: q } },
-		];
-	}
+    const andClauses: Prisma.PostWhereInput[] = []
+
+    if (params.q && params.q.trim().length > 0) {
+        const qRaw = params.q.trim();
+        const q = normalize(qRaw);
+        andClauses.push({
+            OR: [
+                { title: { contains: q, mode: 'insensitive' } },
+                { subtitle: { contains: q, mode: 'insensitive' } },
+                { description: { contains: q, mode: 'insensitive' } },
+                { location: { contains: q, mode: 'insensitive' } },
+                { author: { contains: q, mode: 'insensitive' } },
+                { tags: { has: q } },
+            ],
+        })
+    }
+
+    if (!opts?.includeNonApproved) {
+        const now = new Date()
+        andClauses.push({ OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] })
+    }
+
+    if (andClauses.length > 0) where.AND = andClauses
 
     return where;
 }
@@ -74,6 +85,6 @@ export function resolveOrderBy(sort?: SortKey): Prisma.PostOrderByWithRelationIn
             return { rating: 'desc' };
         case 'recent':
         default:
-            return [{ status: 'asc' }, { createdAt: 'asc' }];
+            return [{ status: 'asc' }, { createdAt: 'desc' }];
     }
 }

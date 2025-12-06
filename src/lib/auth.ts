@@ -49,7 +49,7 @@ function verifyJWT(token: string, secret: string): Record<string, unknown> | nul
 
 export function signUserJWT(userId: string, role: UserRole, opts?: { expiresInSec?: number }): string {
   const secret = process.env.NEXTAUTH_SECRET
-  if (!secret) throw new Error('Missing ADMIN_TOKEN_SECRET')
+  if (!secret) throw new Error('Missing NEXTAUTH_SECRET')
   const now = Math.floor(Date.now() / 1000)
   const exp = now + (opts?.expiresInSec ?? 2 * 60 * 60)
   return signJWT({ sub: userId, role, iat: now, exp }, secret)
@@ -58,7 +58,7 @@ export function signUserJWT(userId: string, role: UserRole, opts?: { expiresInSe
 function isAdminBearer(req: NextRequest): boolean {
   const token = getToken(req)
   if (!token) return false
-  const secret = process.env.ADMIN_TOKEN_SECRET
+  const secret = process.env.NEXTAUTH_SECRET
   if (!secret) return false
   const payload = verifyJWT(token, secret)
   const role = (payload as { role?: UserRole } | null)?.role
@@ -150,7 +150,7 @@ export async function requireSSRRole(allowed: ReadonlyArray<UserRole>): Promise<
 
 export async function getRoleFromRequest(req: NextRequest): Promise<UserRole | undefined> {
   const token = getToken(req)
-  const secret = process.env.ADMIN_TOKEN_SECRET
+  const secret = process.env.NEXTAUTH_SECRET
   if (token && secret) {
     const payload = verifyJWT(token, secret)
     const role = (payload as { role?: UserRole } | null)?.role

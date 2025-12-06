@@ -12,6 +12,7 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ id: st
     const data: ApiUser = {
       id: u.id,
       email: u.email,
+      avatar: u.avatar ?? null,
       name: u.name,
       phone: u.phone,
       dni: u.dni,
@@ -47,12 +48,16 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
 
     const u = await prisma.user.update({ where: { id }, data: updates })
 
+    const hasStatusChange = typeof input.status === 'string'
+    const action = hasStatusChange ? `user_status_${input.status}` : 'user_update'
+    const reason = typeof (json as { reason?: string }).reason === 'string' ? (json as { reason?: string }).reason : null
     await prisma.moderationLog.create({
       data: {
         actor: auth.userId ?? 'system',
-        action: 'user_update',
+        action,
         targetType: 'User',
         targetId: u.id,
+        reason: hasStatusChange ? reason : null,
       },
     })
 
@@ -81,6 +86,7 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ id: 
   if (!auth.ok) return auth.res
   try {
     const { id } = await context.params
+    await prisma.post.deleteMany({ where: { authorId: id } })
     await prisma.user.delete({ where: { id } })
     await prisma.moderationLog.create({
       data: { actor: auth.userId ?? 'system', action: 'user_delete', targetType: 'User', targetId: id },

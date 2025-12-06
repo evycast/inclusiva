@@ -85,18 +85,18 @@ export default function SearchFilters({
 						</Chip>
 
 						{categoriesList.map(({ key, def }) => {
-							const IconComponent = def.icon;
-							const isSelected = selected === key;
-							const activeClass = `bg-${def.color}-500 text-white border-${def.color}-500`;
-							return (
-								<Chip
-									key={key}
-									selected={isSelected}
-									onClick={() => onSelectedChange(key)}
-									className={`flex items-center gap-2.5 whitespace-nowrap relative overflow-hidden cursor-pointer ${
-										isSelected ? activeClass : 'border-border'
-									}`}
-								>
+                            const IconComponent = def.icon;
+                            const isSelected = selected === key;
+                            const activeClass = `bg-gradient-to-r ${def.gradient} text-white border-transparent`;
+                            return (
+                                <Chip
+                                    key={key}
+                                    selected={isSelected}
+                                    onClick={() => onSelectedChange(key)}
+                                    className={`flex items-center gap-2.5 whitespace-nowrap relative overflow-hidden cursor-pointer ${
+                                        isSelected ? activeClass : `${def.bgColor} ${def.textColor} ${def.borderColor}`
+                                    }`}
+                                >
 									<div className='relative z-10 flex items-center gap-2.5 p-0.5'>
 										<IconComponent size={15} />
 										<span className='font-medium'>{def.label}</span>

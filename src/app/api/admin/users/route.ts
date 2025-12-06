@@ -44,6 +44,8 @@ export async function GET(req: NextRequest) {
     const q = sp.get('q') ?? undefined
     const role = sp.get('role') as ('user' | 'moderator' | 'admin') | undefined
     const status = sp.get('status') as ('pending' | 'approved' | 'rejected') | undefined
+    const verifiedPublic = sp.get('verifiedPublic')
+    const emailVerified = sp.get('emailVerified')
 
     const where = {
       AND: [
@@ -57,6 +59,8 @@ export async function GET(req: NextRequest) {
           : undefined,
         role ? { role } : undefined,
         status ? { status } : undefined,
+        verifiedPublic === 'true' ? { verifiedPublic: true } : verifiedPublic === 'false' ? { verifiedPublic: false } : undefined,
+        emailVerified === 'true' ? { emailVerified: { not: null } } : emailVerified === 'false' ? { emailVerified: null } : undefined,
       ].filter(Boolean) as Array<unknown>,
     } as { AND?: Array<Record<string, unknown>> }
 
@@ -74,6 +78,7 @@ export async function GET(req: NextRequest) {
     const data: ApiUser[] = rows.map((u) => ({
       id: u.id,
       email: u.email,
+      avatar: u.avatar ?? null,
       name: u.name,
       phone: u.phone,
       dni: u.dni,

@@ -26,6 +26,20 @@ model Post {
   date            DateTime?
   payment         PaymentMethod[]
   barterAccepted  Boolean         @default(false)
+  // Permisos y visibilidad
+  authorId        String?
+  expiresAt       DateTime?
+  privateInfo     String?
+  contactVisibility ContactVisibility?
+  contactFlow     ContactFlow?
+  commitCommunity Boolean?
+  commitRespectRules Boolean?
+  // Metadata de creación (request)
+  createdIp            String?
+  createdUserAgent     String?
+  createdAcceptLanguage String?
+  createdTimezone      String?
+  createdReferrer      String?
   startDate       DateTime?
   endDate         DateTime?
   venue           String?
@@ -47,12 +61,14 @@ model Post {
   status          PostStatus      @default(pending)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
-  comments        Comment[]
   socials         SocialLink[]
+  user            User?           @relation(fields: [authorId], references: [id])
+  reports         Report[]
 
   @@index([category])
   @@index([status])
   @@index([createdAt])
+  @@index([authorId])
 }
 
 model SocialLink {
@@ -63,25 +79,8 @@ model SocialLink {
   createdAt DateTime @default(now())
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
+  @@unique([postId, name])
   @@index([postId])
-}
-
-model Comment {
-  id        String        @id @default(cuid())
-  postId    String
-  userId    String?
-  guestName String?
-  parentId  String?
-  content   String
-  status    CommentStatus @default(visible)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  parent    Comment?      @relation("CommentToComment", fields: [parentId], references: [id])
-  children  Comment[]     @relation("CommentToComment")
-  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@index([postId])
-  @@index([parentId])
 }
 
 model ModerationLog {
@@ -100,6 +99,7 @@ model User {
   id             String     @id @default(cuid())
   email          String     @unique
   passwordHash   String
+  avatar         String?
   name           String?
   phone          String?
   dni            String?
@@ -109,6 +109,7 @@ model User {
   verifiedPublic Boolean    @default(false)
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
+  posts          Post[]
 }
 
 model VerificationToken {
@@ -161,11 +162,6 @@ enum PostStatus {
   rejected
 }
 
-enum CommentStatus {
-  visible
-  hidden
-  deleted
-}
 
 enum Role {
   user
@@ -177,4 +173,30 @@ enum UserStatus {
   pending
   approved
   rejected
+}
+model Report {
+  id             String   @id @default(cuid())
+  postId         String
+  userId         String?
+  reason         String
+  message        String?
+  ip             String?
+  userAgent      String?
+  acceptLanguage String?
+  timezone       String?
+  referrer       String?
+  createdAt      DateTime @default(now())
+  post           Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([createdAt])
+}
+enum ContactVisibility {
+  public
+  gated
+}
+
+enum ContactFlow {
+  seller_contacts
+  buyer_contacts_first
 }

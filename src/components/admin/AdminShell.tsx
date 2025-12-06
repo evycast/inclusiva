@@ -57,7 +57,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <LogoutButton />
         </div>
       </aside>
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         <div className="flex items-center gap-3 border-b bg-card p-3 md:hidden">
           <Sheet>
             <SheetTrigger asChild>
@@ -79,9 +79,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           </Sheet>
           <div className="text-sm font-medium">{title}</div>
         </div>
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 min-w-0 overflow-x-hidden">{children}</main>
       </div>
     </div>
   )
 }
-

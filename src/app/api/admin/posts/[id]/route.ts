@@ -21,6 +21,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const date = input.date ? parseISO(input.date) : undefined
   const startDate = 'startDate' in input && input.startDate ? parseISO(input.startDate) : undefined
   const endDate = 'endDate' in input && input.endDate ? parseISO(input.endDate) : undefined
+  const expiresAt = input.expiresAt ? parseISO(input.expiresAt) : undefined
 
   // Update scalar fields
   const updated = await prisma.post.update({
@@ -43,6 +44,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       date: date && isValid(date) ? date : undefined,
       payment: input.payment ? { set: input.payment } : undefined,
       barterAccepted: input.barterAccepted,
+      expiresAt: expiresAt && isValid(expiresAt) ? expiresAt : undefined,
       startDate: startDate && isValid(startDate) ? startDate : undefined,
       endDate: endDate && isValid(endDate) ? endDate : undefined,
       venue: 'venue' in input ? input.venue : undefined,

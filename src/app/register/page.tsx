@@ -38,7 +38,7 @@ export default function RegisterPage() {
       await res.json()
       toast.success('Registro enviado. Revisá tu email para verificar tu cuenta.')
       router.refresh()
-      router.replace('/admin/login')
+      router.replace('/')
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error de registro'
       toast.error(msg)

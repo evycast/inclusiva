@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import type { Prisma } from '@prisma/client'
 import { buildPostWhere, resolveOrderBy, type SortKey } from '@/lib/filters/postWhere'
 import { requireRole } from '@/lib/auth'
 import { postSchema, type PostInput } from '@/lib/validation/post'
@@ -19,15 +20,31 @@ export async function GET(req: NextRequest) {
   const maxPrice = sp.get('maxPrice') ? Number(sp.get('maxPrice')) : undefined
   const mode = (sp.get('mode') as 'presencial' | 'online' | 'hibrido') ?? undefined
   const status = (sp.get('status') as 'pending' | 'approved' | 'rejected') ?? undefined
+  const exp = (sp.get('exp') as 'active' | 'expired' | 'all') ?? 'all'
   const sort = (sp.get('sort') as SortKey) ?? 'recent'
 
   const where = buildPostWhere({ q, category, urgent, minPrice, maxPrice, mode, status }, { includeNonApproved: true })
+  if (exp === 'active') {
+    const now = new Date()
+    const and: Prisma.PostWhereInput[] = Array.isArray(where.AND) ? [...where.AND] : []
+    and.push({ OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] })
+    where.AND = and
+  } else if (exp === 'expired') {
+    const now = new Date()
+    const and: Prisma.PostWhereInput[] = Array.isArray(where.AND) ? [...where.AND] : []
+    and.push({ expiresAt: { lte: now } })
+    where.AND = and
+  }
   const orderBy = resolveOrderBy(sort)
 
-  const [total, data] = await Promise.all([
+  const [total, rows] = await Promise.all([
     prisma.post.count({ where }),
-    prisma.post.findMany({ where, orderBy, skip: (page - 1) * pageSize, take: pageSize }),
+    prisma.post.findMany({ where, orderBy, skip: (page - 1) * pageSize, take: pageSize, include: { user: { select: { verifiedPublic: true } } } }),
   ])
+  const data = rows.map(r => ({
+    ...r,
+    authorVerified: !!r.user?.verifiedPublic,
+  }))
   const totalPages = Math.ceil(total / pageSize) || 1
 
   return NextResponse.json({
