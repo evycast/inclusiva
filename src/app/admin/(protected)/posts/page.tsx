@@ -261,16 +261,16 @@ export default function AdminPostsPage() {
 								<TableCell>
 									<div className='flex items-center gap-2'>
 										<Avatar>
-											<AvatarImage src={p.authorAvatar ?? ''} alt={p.author} />
+											<AvatarImage src={p.authorAvatar ?? ''} alt={p.authorName ?? 'Autor'} />
 											<AvatarFallback>
-												{(p.author || '')
+												{(p.authorName || '')
 													.split(' ')
 													.slice(0, 2)
-													.map((s) => s[0]?.toUpperCase() || '')
+													.map((s: string) => s[0]?.toUpperCase() || '')
 													.join('')}
 											</AvatarFallback>
 										</Avatar>
-										<span>{p.author}</span>
+										<span>{p.authorName}</span>
 										{p.authorVerified ? <VerifyCheck className='h-4 w-4 text-emerald-600' /> : null}
 									</div>
 								</TableCell>
@@ -533,34 +533,45 @@ export default function AdminPostsPage() {
 							<Button variant='outline' onClick={() => setRejectTarget(null)}>
 								Cancelar
 							</Button>
-							<Button
-								onClick={async () => {
-									const id = rejectTarget?.id;
-									if (!id) return;
-									setRejectTarget(null);
-									setChangingId(id);
-									const p = (async () => {
-										const res = await fetch(`/api/admin/posts/${id}`, {
-											method: 'PATCH',
-											headers: { 'Content-Type': 'application/json' },
-											body: JSON.stringify({ status: 'rejected', reason: rejectReason.trim() || undefined }),
-										});
-										if (res.status === 401) {
-											router.push('/admin/login');
-											return;
-										}
-										qc.invalidateQueries({ queryKey: ['admin-posts'] });
-										setChangingId(null);
-									})();
-									await toast.promise(p, {
-										loading: 'Rechazando…',
-										success: 'Publicación rechazada',
-										error: 'Error al rechazar',
-									});
-								}}
-							>
-								Confirmar
-							</Button>
+                            <Button
+                                disabled={!rejectReason.trim()}
+                                onClick={async () => {
+                                    const id = rejectTarget?.id;
+                                    if (!id) return;
+                                    setRejectTarget(null);
+                                    setChangingId(id);
+                                    const p = (async () => {
+                                        const res = await fetch(`/api/admin/posts/${id}`, {
+                                            method: 'PATCH',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ status: 'rejected', reason: rejectReason.trim() || undefined }),
+                                        });
+                                        if (res.status === 401) {
+                                            router.push('/admin/login');
+                                            return;
+                                        }
+                                        if (res.status === 400) {
+                                            const j = await res.json().catch(() => ({}))
+                                            const err = (j as { error?: string }).error
+                                            if (err === 'reason_required') throw new Error('Debés ingresar un motivo')
+                                        }
+                                        const j = await res.json().catch(() => ({}))
+                                        const preview = (j as { emailPreviewUrl?: string }).emailPreviewUrl
+                                        if (preview) {
+                                            try { window.open(preview, '_blank') } catch {}
+                                        }
+                                        qc.invalidateQueries({ queryKey: ['admin-posts'] });
+                                        setChangingId(null);
+                                    })();
+                                    await toast.promise(p, {
+                                        loading: 'Rechazando…',
+                                        success: 'Publicación rechazada',
+                                        error: 'Error al rechazar',
+                                    });
+                                }}
+                            >
+                                Confirmar
+                            </Button>
 						</div>
 					</div>
 				</DialogContent>

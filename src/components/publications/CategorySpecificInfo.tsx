@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import type { PostInput } from '@/lib/validation/post';
-import { FaCalendarAlt, FaCalendarCheck, FaMapMarkerAlt, FaUsers, FaLaptop, FaStore, FaTools, FaMedal, FaHistory, FaMoneyBill } from 'react-icons/fa';
+import { Calendar, MapPin, Users, Laptop, Store, Wrench, Medal, History, Banknote } from 'lucide-react';
 
 type Props = { post: PostInput };
 
@@ -28,37 +28,37 @@ export default function CategorySpecificInfo({ post }: Props) {
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
           {start && (
             <div className='flex items-center gap-2'>
-              <FaCalendarAlt className='text-blue-600 w-5 h-5' />
+              <Calendar className='text-blue-600 w-5 h-5' />
               <span>Inicio: {start}</span>
             </div>
           )}
           {end && (
             <div className='flex items-center gap-2'>
-              <FaCalendarCheck className='text-blue-600 w-5 h-5' />
+              <Calendar className='text-blue-600 w-5 h-5' />
               <span>Fin: {end}</span>
             </div>
           )}
           {post.venue && (
             <div className='flex items-center gap-2'>
-              <FaMapMarkerAlt className='text-red-600 w-5 h-5' />
+              <MapPin className='text-red-600 w-5 h-5' />
               <span>Lugar: {post.venue}</span>
             </div>
           )}
           {post.mode && (
             <div className='flex items-center gap-2'>
-              <FaLaptop className='text-violet-600 w-5 h-5' />
+              <Laptop className='text-violet-600 w-5 h-5' />
               <span>Modalidad: {post.mode}</span>
             </div>
           )}
           {typeof post.capacity === 'number' && (
             <div className='flex items-center gap-2'>
-              <FaUsers className='text-emerald-600 w-5 h-5' />
+              <Users className='text-emerald-600 w-5 h-5' />
               <span>Capacidad: {post.capacity}</span>
             </div>
           )}
           {post.organizer && (
             <div className='flex items-center gap-2'>
-              <FaMedal className='text-amber-600 w-5 h-5' />
+              <Medal className='text-amber-600 w-5 h-5' />
               <span>Organiza: {post.organizer}</span>
             </div>
           )}
@@ -74,19 +74,19 @@ export default function CategorySpecificInfo({ post }: Props) {
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
           {typeof post.experienceYears === 'number' && (
             <div className='flex items-center gap-2'>
-              <FaTools className='text-violet-600 w-5 h-5' />
+              <Wrench className='text-violet-600 w-5 h-5' />
               <span>Experiencia: {post.experienceYears} años</span>
             </div>
           )}
           {post.availability && (
             <div className='flex items-center gap-2'>
-              <FaCalendarAlt className='text-emerald-600 w-5 h-5' />
+              <Calendar className='text-emerald-600 w-5 h-5' />
               <span>Disponibilidad: {post.availability}</span>
             </div>
           )}
           {post.serviceArea && (
             <div className='flex items-center gap-2'>
-              <FaMapMarkerAlt className='text-red-600 w-5 h-5' />
+              <MapPin className='text-red-600 w-5 h-5' />
               <span>Zona: {post.serviceArea}</span>
             </div>
           )}
@@ -102,7 +102,7 @@ export default function CategorySpecificInfo({ post }: Props) {
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
           {post.condition && (
             <div className='flex items-center gap-2'>
-              <FaStore className='text-pink-600 w-5 h-5' />
+              <Store className='text-pink-600 w-5 h-5' />
               <span>Condición: {post.condition}</span>
             </div>
           )}
@@ -113,7 +113,7 @@ export default function CategorySpecificInfo({ post }: Props) {
           )}
           {post.warranty && (
             <div className='flex items-center gap-2'>
-              <FaMedal className='text-amber-600 w-5 h-5' />
+              <Medal className='text-amber-600 w-5 h-5' />
               <span>Garantía: {post.warranty}</span>
             </div>
           )}
@@ -129,7 +129,7 @@ export default function CategorySpecificInfo({ post }: Props) {
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
           {post.usageTime && (
             <div className='flex items-center gap-2'>
-              <FaHistory className='text-orange-600 w-5 h-5' />
+              <History className='text-orange-600 w-5 h-5' />
               <span>Tiempo de uso: {post.usageTime}</span>
             </div>
           )}
@@ -145,25 +145,25 @@ export default function CategorySpecificInfo({ post }: Props) {
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
           {post.mode && (
             <div className='flex items-center gap-2'>
-              <FaLaptop className='text-green-600 w-5 h-5' />
+              <Laptop className='text-green-600 w-5 h-5' />
               <span>Modalidad: {post.mode}</span>
             </div>
           )}
           {post.duration && (
             <div className='flex items-center gap-2'>
-              <FaCalendarAlt className='text-green-600 w-5 h-5' />
+              <Calendar className='text-green-600 w-5 h-5' />
               <span>Duración: {post.duration}</span>
             </div>
           )}
           {post.schedule && (
             <div className='flex items-center gap-2'>
-              <FaCalendarCheck className='text-green-600 w-5 h-5' />
+              <Calendar className='text-green-600 w-5 h-5' />
               <span>Cronograma: {post.schedule}</span>
             </div>
           )}
           {post.level && (
             <div className='flex items-center gap-2'>
-              <FaMedal className='text-amber-600 w-5 h-5' />
+              <Medal className='text-amber-600 w-5 h-5' />
               <span>Nivel: {post.level}</span>
             </div>
           )}
@@ -180,13 +180,13 @@ export default function CategorySpecificInfo({ post }: Props) {
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-muted-foreground'>
           {needed && (
             <div className='flex items-center gap-2'>
-              <FaCalendarAlt className='text-red-600 w-5 h-5' />
+              <Calendar className='text-red-600 w-5 h-5' />
               <span>Necesidad hasta: {needed}</span>
             </div>
           )}
           {post.budgetRange && (
             <div className='flex items-center gap-2'>
-              <FaMoneyBill className='text-red-600 w-5 h-5' />
+              <Banknote className='text-red-600 w-5 h-5' />
               <span>Presupuesto: {post.budgetRange}</span>
             </div>
           )}

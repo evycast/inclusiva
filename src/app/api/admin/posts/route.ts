@@ -16,14 +16,12 @@ export async function GET(req: NextRequest) {
   const q = sp.get('q') ?? undefined
   const category = sp.get('category') ?? undefined
   const urgent = sp.get('urgent') === 'true' ? true : sp.get('urgent') === 'false' ? false : undefined
-  const minPrice = sp.get('minPrice') ? Number(sp.get('minPrice')) : undefined
-  const maxPrice = sp.get('maxPrice') ? Number(sp.get('maxPrice')) : undefined
   const mode = (sp.get('mode') as 'presencial' | 'online' | 'hibrido') ?? undefined
   const status = (sp.get('status') as 'pending' | 'approved' | 'rejected') ?? undefined
   const exp = (sp.get('exp') as 'active' | 'expired' | 'all') ?? 'all'
   const sort = (sp.get('sort') as SortKey) ?? 'recent'
 
-  const where = buildPostWhere({ q, category, urgent, minPrice, maxPrice, mode, status }, { includeNonApproved: true })
+  const where = buildPostWhere({ q, category, urgent, mode, status }, { includeNonApproved: true })
   if (exp === 'active') {
     const now = new Date()
     const and: Prisma.PostWhereInput[] = Array.isArray(where.AND) ? [...where.AND] : []
@@ -39,10 +37,12 @@ export async function GET(req: NextRequest) {
 
   const [total, rows] = await Promise.all([
     prisma.post.count({ where }),
-    prisma.post.findMany({ where, orderBy, skip: (page - 1) * pageSize, take: pageSize, include: { user: { select: { verifiedPublic: true } } } }),
+    prisma.post.findMany({ where, orderBy, skip: (page - 1) * pageSize, take: pageSize, include: { user: { select: { verifiedPublic: true, name: true, avatar: true } } } }),
   ])
   const data = rows.map(r => ({
     ...r,
+    authorName: r.user?.name ?? 'Anónimo',
+    authorAvatar: r.user?.avatar ?? undefined,
     authorVerified: !!r.user?.verifiedPublic,
   }))
   const totalPages = Math.ceil(total / pageSize) || 1
@@ -82,11 +82,7 @@ export async function POST(req: NextRequest) {
     subtitle: input.subtitle ?? null,
     description: input.description,
     image: input.image,
-    author: input.author,
-    authorAvatar: input.authorAvatar ?? null,
-    location: input.location,
     price: input.price ?? null,
-    priceLabel: input.priceLabel ?? null,
     rating: input.rating ?? null,
     ratingCount: input.ratingCount ?? null,
     tags: input.tags ?? [],
@@ -94,6 +90,14 @@ export async function POST(req: NextRequest) {
     date: new Date(),
     payment: input.payment ?? [],
     barterAccepted: input.barterAccepted ?? false,
+    termsAccepted: input.termsAccepted ?? false,
+    contactVisibility: input.contactVisibility ?? 'gated',
+    contactFlow: input.contactFlow ?? null,
+    privateFullName: input.privateFullName ?? null,
+    privatePhone: input.privatePhone ?? null,
+    privateEmail: input.privateEmail ?? null,
+    privateDni: input.privateDni ?? null,
+    privateDescription: input.privateDescription ?? null,
     status: 'pending' as const,
   }
 

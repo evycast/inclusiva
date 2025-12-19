@@ -31,16 +31,13 @@ export default function CrearProductoPage() {
 			description: '',
 			image:
 				'https://image.pollinations.ai/prompt/Board%20game%20afternoon%20in%20community%20center%2C%20diverse%20group%2C%20Mar%20del%20Plata%20Camet%2C%20photorealistic%2C%20warm%20light?width=1200&height=800&model=flux-realism&enhance=true&nologo=true',
-			author: '',
-			authorAvatar: undefined,
-			location: '',
 			socials: [{ name: '', url: '' }],
 			payment: [],
 			condition: 'nuevo',
 			stock: undefined,
 			warranty: undefined,
 			price: undefined,
-			priceLabel: undefined,
+			termsAccepted: true,
 		},
 	});
 
@@ -153,32 +150,6 @@ export default function CrearProductoPage() {
 						)}
 					/>
 
-					{/* Avatar del autor (URL) */}
-					<FormField
-						control={form.control}
-						name='authorAvatar'
-						render={({ field }) => (
-							<FormItem>
-								<div className='flex items-center gap-2'>
-									<FormLabel>Avatar (URL)</FormLabel>
-									<Badge variant='outline'>Opcional</Badge>
-								</div>
-								<FormControl>
-									<Input
-										{...field}
-										value={field.value ?? ''}
-										placeholder='https://...'
-										onBlur={() => {
-											field.onBlur();
-											form.trigger('authorAvatar');
-										}}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
 					{/* Subtítulo */}
 					<FormField
 						control={form.control}
@@ -228,56 +199,6 @@ export default function CrearProductoPage() {
 										onBlur={() => {
 											field.onBlur();
 											form.trigger('description');
-										}}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
-					{/* Autor */}
-					<FormField
-						control={form.control}
-						name='author'
-						render={({ field }) => (
-							<FormItem>
-								<div className='flex items-center gap-2'>
-									<FormLabel>Autor</FormLabel>
-									<Badge variant='outline'>Requerido</Badge>
-								</div>
-								<FormControl>
-									<Input
-										{...field}
-										value={field.value ?? ''}
-										onBlur={() => {
-											field.onBlur();
-											form.trigger('author');
-										}}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
-					{/* Ubicación */}
-					<FormField
-						control={form.control}
-						name='location'
-						render={({ field }) => (
-							<FormItem>
-								<div className='flex items-center gap-2'>
-									<FormLabel>Ubicación</FormLabel>
-									<Badge variant='outline'>Requerido</Badge>
-								</div>
-								<FormControl>
-									<Input
-										{...field}
-										value={field.value ?? ''}
-										onBlur={() => {
-											field.onBlur();
-											form.trigger('location');
 										}}
 									/>
 								</FormControl>
@@ -406,37 +327,6 @@ export default function CrearProductoPage() {
 										onBlur={() => {
 											field.onBlur();
 											form.trigger('price');
-										}}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
-					{/* Etiqueta de precio */}
-					<FormField
-						control={form.control}
-						name='priceLabel'
-						render={({ field }) => (
-							<FormItem>
-								<div className='flex items-center gap-2'>
-									<FormLabel>Etiqueta de precio</FormLabel>
-									<Badge variant='outline'>Opcional</Badge>
-								</div>
-								<FormControl>
-									<Input
-										{...field}
-										value={field.value ?? ''}
-										onBlur={() => {
-											const v = (field.value ?? '').toString().trim();
-											if (v === '') {
-												form.setValue('priceLabel', undefined, { shouldValidate: true });
-												form.clearErrors('priceLabel');
-											} else {
-												field.onBlur();
-												form.trigger('priceLabel');
-											}
 										}}
 									/>
 								</FormControl>

@@ -1,64 +1,104 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { postSchema, type PostInput } from '@/lib/validation/post'
-import { parseISO, isValid } from 'date-fns'
+import { parseISO, isValid, addDays } from 'date-fns'
 import { buildPostWhere, resolveOrderBy, type SortKey } from '@/lib/filters/postWhere'
+import { getSSRAuth } from '@/lib/auth'
 
-function toApiPost(p: Record<string, unknown>) {
+interface PostRecord {
+  id: string
+  authorId: string | null
+  category: PostInput['category']
+  title: string
+  subtitle: string | null
+  description: string
+  image: string
+  price: string | null
+  rating: number | null
+  ratingCount: number | null
+  tags: string[] | null
+  urgent: boolean | null
+  date: Date | string | null
+  createdAt: Date
+  status: 'pending' | 'approved' | 'rejected'
+  socials: Array<{ name: string; url: string }>
+  payment: PostInput['payment'] | null
+  barterAccepted: boolean | null
+  startDate: Date | string | null
+  endDate: Date | string | null
+  venue: string | null
+  mode: 'presencial' | 'online' | 'hibrido' | null
+  capacity: number | null
+  organizer: string | null
+  experienceYears: number | null
+  availability: string | null
+  serviceArea: string | null
+  condition: 'nuevo' | 'reacondicionado' | 'usado' | null
+  stock: number | null
+  warranty: string | null
+  usageTime: string | null
+  duration: string | null
+  schedule: string | null
+  level: 'principiante' | 'intermedio' | 'avanzado' | null
+  neededBy: string | null
+  budgetRange: string | null
+  contactVisibility: 'public' | 'gated' | null
+  contactFlow: 'seller_contacts' | 'buyer_contacts_first' | null
+  user?: { name: string | null; avatar: string | null; verifiedPublic: boolean } | null
+}
+
+function toApiPost(p: PostRecord) {
   return {
-    id: (p as { id: string }).id,
-    category: (p as { category: PostInput['category'] }).category,
-    title: (p as { title: string }).title,
-    subtitle: (p as { subtitle: string | null }).subtitle ?? undefined,
-    description: (p as { description: string }).description,
-    image: (p as { image: string }).image,
-    author: (p as { author: string }).author,
-    authorAvatar: (p as { authorAvatar: string | null }).authorAvatar ?? undefined,
-    location: (p as { location: string }).location,
-    price: typeof (p as { price: number | null }).price === 'number' ? (p as { price: number | null }).price : undefined,
-    priceLabel: (p as { priceLabel: string | null }).priceLabel ?? undefined,
-    rating: typeof (p as { rating: number | null }).rating === 'number' ? (p as { rating: number | null }).rating : undefined,
-    ratingCount: typeof (p as { ratingCount: number | null }).ratingCount === 'number' ? (p as { ratingCount: number | null }).ratingCount : undefined,
-    tags: Array.isArray((p as { tags: string[] | null }).tags) ? (p as { tags: string[] | null }).tags ?? undefined : undefined,
-    urgent: !!(p as { urgent: boolean | null }).urgent,
-    // Fecha de publicación
-    date: (p as { date: Date | string | null }).date ? new Date((p as { date: Date | string | null }).date as Date | string).toISOString() : new Date().toISOString(),
-    status: (p as { status: 'pending' | 'approved' | 'rejected' }).status,
-    socials: Array.isArray((p as { socials: { name: string; url: string }[] | null }).socials)
-      ? ((p as { socials: { name: string; url: string }[] }).socials).map((s) => ({ name: s.name, url: s.url }))
+    id: p.id,
+    authorId: p.authorId ?? undefined,
+    category: p.category,
+    title: p.title,
+    subtitle: p.subtitle ?? undefined,
+    description: p.description,
+    image: p.image,
+    // Datos del autor desde la relación User
+    authorName: p.user?.name ?? undefined,
+    authorAvatar: p.user?.avatar ?? undefined,
+    authorVerified: p.user?.verifiedPublic ?? false,
+    price: p.price ?? undefined,
+    rating: typeof p.rating === 'number' ? p.rating : undefined,
+    ratingCount: typeof p.ratingCount === 'number' ? p.ratingCount : undefined,
+    tags: Array.isArray(p.tags) ? p.tags : undefined,
+    urgent: !!p.urgent,
+    date: p.date ? new Date(p.date).toISOString() : new Date().toISOString(),
+    createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : undefined,
+    status: p.status,
+    socials: Array.isArray(p.socials)
+      ? p.socials.map((s) => ({ name: s.name, url: s.url }))
       : [],
-    payment: Array.isArray((p as { payment: PostInput['payment'] | null }).payment) ? ((p as { payment: PostInput['payment'] }).payment) : undefined,
-    barterAccepted: !!(p as { barterAccepted: boolean | null }).barterAccepted,
-
+    payment: Array.isArray(p.payment) ? p.payment : undefined,
+    barterAccepted: !!p.barterAccepted,
     // Evento
-    startDate: (p as { startDate: Date | string | null }).startDate ? new Date((p as { startDate: Date | string | null }).startDate as Date | string).toISOString() : undefined,
-    endDate: (p as { endDate: Date | string | null }).endDate ? new Date((p as { endDate: Date | string | null }).endDate as Date | string).toISOString() : undefined,
-    venue: (p as { venue: string | null }).venue ?? undefined,
-    mode: (p as { mode: 'presencial' | 'online' | 'hibrido' | null }).mode ?? undefined,
-    capacity: typeof (p as { capacity: number | null }).capacity === 'number' ? (p as { capacity: number | null }).capacity : undefined,
-    organizer: (p as { organizer: string | null }).organizer ?? undefined,
-
+    startDate: p.startDate ? new Date(p.startDate).toISOString() : undefined,
+    endDate: p.endDate ? new Date(p.endDate).toISOString() : undefined,
+    venue: p.venue ?? undefined,
+    mode: p.mode ?? undefined,
+    capacity: typeof p.capacity === 'number' ? p.capacity : undefined,
+    organizer: p.organizer ?? undefined,
     // Servicio
-    experienceYears: typeof (p as { experienceYears: number | null }).experienceYears === 'number' ? (p as { experienceYears: number | null }).experienceYears : undefined,
-    availability: (p as { availability: string | null }).availability ?? undefined,
-    serviceArea: (p as { serviceArea: string | null }).serviceArea ?? undefined,
-
+    experienceYears: typeof p.experienceYears === 'number' ? p.experienceYears : undefined,
+    availability: p.availability ?? undefined,
+    serviceArea: p.serviceArea ?? undefined,
     // Producto
-    condition: (p as { condition: 'nuevo' | 'reacondicionado' | 'usado' | null }).condition ?? undefined,
-    stock: typeof (p as { stock: number | null }).stock === 'number' ? (p as { stock: number | null }).stock : undefined,
-    warranty: (p as { warranty: string | null }).warranty ?? undefined,
-
+    condition: p.condition ?? undefined,
+    stock: typeof p.stock === 'number' ? p.stock : undefined,
+    warranty: p.warranty ?? undefined,
     // Usado
-    usageTime: (p as { usageTime: string | null }).usageTime ?? undefined,
-
+    usageTime: p.usageTime ?? undefined,
     // Curso
-    duration: (p as { duration: string | null }).duration ?? undefined,
-    schedule: (p as { schedule: string | null }).schedule ?? undefined,
-    level: (p as { level: 'principiante' | 'intermedio' | 'avanzado' | null }).level ?? undefined,
-
+    duration: p.duration ?? undefined,
+    schedule: p.schedule ?? undefined,
+    level: p.level ?? undefined,
     // Pedido
-    neededBy: (p as { neededBy: string | null }).neededBy ?? undefined,
-    budgetRange: (p as { budgetRange: string | null }).budgetRange ?? undefined,
+    neededBy: p.neededBy ?? undefined,
+    budgetRange: p.budgetRange ?? undefined,
+    contactVisibility: p.contactVisibility ?? undefined,
+    contactFlow: p.contactFlow ?? undefined,
   }
 }
 
@@ -70,20 +110,34 @@ export async function GET(req: NextRequest) {
     const q = sp.get('q') ?? undefined
     const category = sp.get('category') ?? undefined
     const sort = (sp.get('sort') as SortKey) ?? 'recent'
+    const location = sp.get('location') ?? undefined
+    const paymentCsv = sp.get('payment') ?? ''
+    const payment = paymentCsv
+      ? paymentCsv.split(',').map((s) => s.trim()).filter((s) => s.length > 0) as ('cash'|'debit'|'credit'|'transfer'|'mercadopago'|'crypto')[]
+      : undefined
 
     // Público: sólo publicaciones aprobadas por defecto
-    const where = buildPostWhere({ q, category })
+    const where = buildPostWhere({ q, category, payment, location })
     const orderBy = resolveOrderBy(sort)
 
     const [total, rows] = await Promise.all([
       prisma.post.count({ where }),
-      prisma.post.findMany({ where, orderBy, skip: (page - 1) * pageSize, take: pageSize, include: { socials: true } }),
+      prisma.post.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+          socials: true,
+          user: { select: { name: true, avatar: true, verifiedPublic: true } },
+        },
+      }),
     ])
     const totalPages = Math.ceil(total / pageSize) || 1
 
     return new Response(
       JSON.stringify({
-        data: rows.map(toApiPost),
+        data: rows.map((r) => toApiPost(r as unknown as PostRecord)),
         pagination: {
           page,
           pageSize,
@@ -106,6 +160,23 @@ export async function POST(req: NextRequest) {
     const json = await req.json()
     const input = postSchema.parse(json) as PostInput
 
+    // Verificar autenticación
+    const auth = await getSSRAuth()
+    if (!auth.ok || !auth.userId) {
+      return new Response(JSON.stringify({ error: 'Debes iniciar sesión para publicar' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Verificar que se acepten los términos
+    if (!input.termsAccepted) {
+      return new Response(JSON.stringify({ error: 'Debes aceptar los términos y condiciones' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
     // Construir payload limpio según categoría
     const baseData = {
       category: input.category,
@@ -113,19 +184,23 @@ export async function POST(req: NextRequest) {
       subtitle: input.subtitle ?? null,
       description: input.description,
       image: input.image,
-      author: input.author,
-      authorAvatar: input.authorAvatar ?? null,
-      location: input.location,
-      price: typeof input.price === 'number' ? input.price : null,
-      priceLabel: input.priceLabel ?? null,
+      price: input.price ?? null,
       rating: typeof input.rating === 'number' ? input.rating : null,
       ratingCount: typeof input.ratingCount === 'number' ? input.ratingCount : null,
       tags: input.tags ?? [],
       urgent: !!input.urgent,
-      // Fecha de publicación automática
       date: new Date(),
       payment: input.payment ?? [],
       barterAccepted: !!input.barterAccepted,
+      contactVisibility: input.contactVisibility ?? 'gated',
+      contactFlow: input.contactFlow ?? 'seller_contacts',
+      termsAccepted: !!input.termsAccepted,
+      // Datos privados de moderación
+      privateFullName: input.privateFullName ?? null,
+      privatePhone: input.privatePhone ?? null,
+      privateEmail: input.privateEmail ?? null,
+      privateDni: input.privateDni ?? null,
+      privateDescription: input.privateDescription ?? null,
       status: 'pending',
     } as const
 
@@ -187,18 +262,35 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const ip = req.headers.get('x-forwarded-for') ?? undefined
+    const userAgent = req.headers.get('user-agent') ?? undefined
+    const acceptLanguage = req.headers.get('accept-language') ?? undefined
+    const referrer = req.headers.get('referer') ?? undefined
+
+    // Fecha de expiración: 30 días desde la creación
+    const expiresAt = addDays(new Date(), 30)
+
     const created = await prisma.post.create({
       data: {
         ...baseData,
         ...categoryData,
+        authorId: auth.userId,
+        expiresAt,
+        createdIp: ip ?? null,
+        createdUserAgent: userAgent ?? null,
+        createdAcceptLanguage: acceptLanguage ?? null,
+        createdReferrer: referrer ?? null,
         socials: input.socials && input.socials.length > 0 ? {
           create: input.socials.map((s) => ({ name: s.name, url: s.url }))
         } : undefined,
       },
-      include: { socials: true },
+      include: {
+        socials: true,
+        user: { select: { name: true, avatar: true, verifiedPublic: true } },
+      },
     })
 
-    return new Response(JSON.stringify({ data: toApiPost(created) }), {
+    return new Response(JSON.stringify({ data: toApiPost(created as unknown as PostRecord) }), {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
     })

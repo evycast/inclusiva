@@ -1,4 +1,4 @@
-import { FaWhatsapp, FaHeart, FaQuestionCircle, FaHandHoldingHeart, FaUsers } from 'react-icons/fa';
+import { MessageCircle, Heart, HelpCircle, Users } from 'lucide-react';
 
 export default function Footer() {
 	return (
@@ -13,7 +13,7 @@ export default function Footer() {
 							rel='noopener noreferrer'
 							className='flex items-center gap-2 text-muted-foreground hover:text-green-500 transition-colors duration-300'
 						>
-							<FaWhatsapp className='w-4 h-4' />
+							<MessageCircle className='w-4 h-4' />
 							Contacto
 						</a>
 
@@ -21,7 +21,7 @@ export default function Footer() {
 							href='/guia'
 							className='flex items-center gap-2 text-muted-foreground hover:text-violet-500 transition-colors duration-300'
 						>
-							<FaQuestionCircle className='w-4 h-4' />
+							<HelpCircle className='w-4 h-4' />
 							Guía de uso
 						</a>
 
@@ -35,7 +35,7 @@ export default function Footer() {
 
 						<a
 							href='/story'
-							className='flex items-center gap-2 text-muted-foreground hover:text-violet-500 transition-colors duration-300'
+							className='flex items-center gap-2 text-muted-foreground hover:text-violet-500 transition-colors duración-300'
 						>
 							<FaInfoCircle className='w-4 h-4' />
 							Historia
@@ -45,7 +45,7 @@ export default function Footer() {
 							href='/aportes'
 							className='flex items-center gap-2 text-muted-foreground hover:text-blue-500 transition-colors duration-300'
 						>
-							<FaHandHoldingHeart className='w-4 h-4' />
+							<HandHeart className='w-4 h-4' />
 							Aportes
 						</a> */}
 
@@ -55,7 +55,7 @@ export default function Footer() {
 							rel='noopener noreferrer'
 							className='flex items-center gap-2 text-muted-foreground hover:text-blue-500 transition-colors duration-300'
 						>
-							<FaUsers className='w-4 h-4' />
+							<Users className='w-4 h-4' />
 							Comunidad
 						</a>
 					</div>
@@ -68,7 +68,7 @@ export default function Footer() {
 						className='flex items-center gap-2 text-xs text-muted-foreground hover:text-violet-600 transition-colors duration-300 group'
 					>
 						<span>Desarrollado con </span>
-						<FaHeart className='w-4 h-4 text-violet-500 group-hover:scale-110 transition-transform duration-300' />
+						<Heart className='w-4 h-4 text-violet-500 group-hover:scale-110 transition-transform duration-300' />
 						<span> por Evelyn Castellano</span>
 					</a>
 				</div>

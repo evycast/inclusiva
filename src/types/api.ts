@@ -13,8 +13,19 @@ import { categoryOptions, paymentMethodOptions } from '@/lib/validation/post'
 export type Category = typeof categoryOptions[number]
 export type PaymentMethod = typeof paymentMethodOptions[number]
 
-// API Post se basa en el PostInput del schema y asegura id presente
-export type ApiPost = PostInput & { id: string; expiresAt?: string | null; authorVerified?: boolean; createdAt?: string }
+// API Post se basa en el PostInput del schema
+export type ApiPost = PostInput & {
+  id: string
+  authorId?: string | null
+  expiresAt?: string | null
+  authorVerified?: boolean
+  authorName?: string | null
+  authorAvatar?: string | null
+  createdAt?: string
+  contactVisibility?: 'public' | 'gated'
+  contactFlow?: 'seller_contacts' | 'buyer_contacts_first'
+  hasContact?: boolean
+}
 
 export type ListResponse = { data: ApiPost[]; pagination: ApiPagination }
 export type DetailResponse = { data: ApiPost }

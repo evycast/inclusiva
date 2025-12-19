@@ -1,6 +1,6 @@
 'use client';
 
-import { FaCalendarAlt, FaSearch, FaTools, FaStore, FaExchangeAlt, FaGraduationCap, FaBoxOpen } from 'react-icons/fa';
+import { Calendar, Search, Wrench, ShoppingBag, Repeat, GraduationCap, Box } from 'lucide-react';
 import Tile from './Tile';
 import { useCategory } from '@/contexts/CategoryContext';
 import { useRouter } from 'next/navigation';
@@ -23,7 +23,7 @@ export default function BentoGrid() {
 				className='col-span-1 us:col-span-3 bg-grad-red sm:col-start-1 sm:col-span-4 sm:row-start-1 sm:row-span-3  overflow-hidden relative z-20 flex flex-col items-center justify-center text-center rounded-2xl p-4 md:p-5 lg:p-6 transition-transform duration-500 ease-out hover:-translate-y-0.5 hover:scale-[1.02] focus-visible:scale-[1.02] focus-visible:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200 shadow-sm'
 			>
 				<div className='tile-decoration decoration-events'></div>
-				<FaCalendarAlt size={28} className='drop-shadow relative z-10' />
+				<Calendar size={28} className='drop-shadow relative z-10' />
 				<span className='text-lg font-semibold drop-shadow relative z-10 mt-1'>Eventos</span>
 			</button>
 
@@ -32,7 +32,7 @@ export default function BentoGrid() {
 				className='col-span-1 us:col-span-3 bg-grad-pink sm:col-start-9 sm:col-span-5 sm:row-start-1 sm:row-span-3  overflow-hidden relative z-20 flex flex-col items-center justify-center text-center rounded-2xl p-4 md:p-5 lg:p-6 transition-transform duration-500 ease-out hover:-translate-y-0.5 hover:scale-[1.02] focus-visible:scale-[1.02] focus-visible:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200 shadow-sm'
 			>
 				<div className='tile-decoration decoration-requests'></div>
-				<FaSearch size={28} className='drop-shadow relative z-10' />
+				<Search size={28} className='drop-shadow relative z-10' />
 				<span className='text-lg font-semibold drop-shadow relative z-10 mt-1'>Pedidos</span>
 			</button>
 
@@ -41,7 +41,7 @@ export default function BentoGrid() {
 				className='col-span-1 us:col-span-3 bg-grad-blue sm:col-start-1 sm:col-span-4 sm:row-start-4 sm:row-span-6  overflow-hidden relative z-20 flex flex-col items-center justify-center text-center rounded-2xl p-4 md:p-5 lg:p-6 transition-transform duration-500 ease-out hover:-translate-y-0.5 hover:scale-[1.02] focus-visible:scale-[1.02] focus-visible:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200 shadow-sm'
 			>
 				<div className='tile-decoration decoration-services'></div>
-				<FaTools size={28} className='drop-shadow relative z-10' />
+				<Wrench size={28} className='drop-shadow relative z-10' />
 				<span className='text-lg font-semibold drop-shadow relative z-10 mt-1'>Servicios</span>
 			</button>
 
@@ -50,7 +50,7 @@ export default function BentoGrid() {
 				className='col-span-1 us:col-span-3 bg-grad-orange sm:col-start-5 sm:col-span-4 sm:row-start-1 sm:row-span-8  overflow-hidden relative z-20 flex flex-col items-center justify-center text-center rounded-2xl p-4 md:p-5 lg:p-6 transition-transform duration-500 ease-out hover:-translate-y-0.5 hover:scale-[1.02] focus-visible:scale-[1.02] focus-visible:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200 shadow-sm'
 			>
 				<div className='tile-decoration decoration-products'></div>
-				<FaStore size={28} className='drop-shadow relative z-10' />
+				<ShoppingBag size={28} className='drop-shadow relative z-10' />
 				<span className='text-lg font-semibold drop-shadow relative z-10 mt-1'>Productos</span>
 			</button>
 			<button
@@ -58,7 +58,7 @@ export default function BentoGrid() {
 				className='col-span-1 us:col-span-3 bg-grad-green sm:col-start-1 sm:col-span-4 sm:row-start-10 sm:row-span-3  overflow-hidden relative z-20 flex flex-col items-center justify-center text-center rounded-2xl p-4 md:p-5 lg:p-6 transition-transform duration-500 ease-out hover:-translate-y-0.5 hover:scale-[1.02] focus-visible:scale-[1.02] focus-visible:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200 shadow-sm'
 			>
 				<div className='tile-decoration decoration-courses'></div>
-				<FaGraduationCap size={28} className='drop-shadow relative z-10' />
+				<GraduationCap size={28} className='drop-shadow relative z-10' />
 				<span className='text-lg font-semibold drop-shadow relative z-10 mt-1'>Cursos</span>
 			</button>
 			<button
@@ -66,7 +66,7 @@ export default function BentoGrid() {
 				className='col-span-1 us:col-span-3 bg-grad-violet sm:col-start-9 sm:col-span-5 sm:row-start-4 sm:row-span-5  overflow-hidden relative z-20 flex flex-col items-center justify-center text-center rounded-2xl p-4 md:p-5 lg:p-6 transition-transform duration-500 ease-out hover:-translate-y-0.5 hover:scale-[1.02] focus-visible:scale-[1.02] focus-visible:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200 shadow-sm'
 			>
 				<div className='tile-decoration decoration-used'></div>
-				<FaExchangeAlt size={28} className='drop-shadow relative z-10' />
+				<Repeat size={28} className='drop-shadow relative z-10' />
 				<span className='text-lg font-semibold drop-shadow relative z-10 mt-1'>Usados</span>
 			</button>
 
@@ -75,7 +75,7 @@ export default function BentoGrid() {
 				className='col-span-1 us:col-span-6 bg-grad-gray  sm:col-span-9 sm:row-start-9 sm:row-span-4 relative overflow-hidden  z-20 flex flex-col items-center justify-center text-center rounded-2xl p-4 md:p-5 lg:p-6 transition-transform duration-500 ease-out hover:-translate-y-0.5 hover:scale-[1.02] focus-visible:scale-[1.02] focus-visible:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200 shadow-sm'
 			>
 				<div className='tile-decoration decoration-all'></div>
-				<FaBoxOpen size={28} className='drop-shadow relative z-10' />
+				<Box size={28} className='drop-shadow relative z-10' />
 				<span className='text-lg font-semibold drop-shadow relative z-10 mt-1'>Todos</span>
 			</button>
 		</section>

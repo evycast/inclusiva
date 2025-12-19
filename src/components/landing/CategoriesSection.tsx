@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { Box, ArrowRight } from 'lucide-react';
 import { getCategory, CategoryKey } from '@/lib/categories';
 
 const CATEGORY_MAPPING: { key: CategoryKey; href: string }[] = [
@@ -40,6 +41,19 @@ export function CategoriesSection() {
 						);
 					})}
 				</div>
+
+                {/* CTA Ver todo */}
+                <div className='mt-10 flex justify-center'>
+                    <Link
+                        href='/publicaciones'
+                        aria-label='Ver todas las publicaciones'
+                        className='group inline-flex items-center justify-center gap-2 w-full  rounded-2xl bg-slate-100 px-6 py-4 text-base text-slate-700 shadow-sm hover:bg-slate-100 hover:text-slate-900 hover:shadow-md transition-all'
+                    >
+                        <Box className='w-5 h-5 text-slate-600 group-hover:text-slate-800' />
+                        <span className='font-semibold'>Ver todo</span>
+                        <ArrowRight className='w-5 h-5 text-slate-500 group-hover:translate-x-1 transition-transform' />
+                    </Link>
+                </div>
 			</div>
 		</section>
 	);
@@ -61,7 +75,7 @@ function CategoryCard({
 	return (
 		<Link href={href} className='group block h-full'>
 			<div
-				className={`h-full rounded-[2rem] p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl cursor-pointer ${color} bg-opacity-30 border border-transparent hover:border-black/5 flex flex-col justify-start`}
+				className={`h-full rounded-[2rem] p-8 transition-all duration-300  shadow-sm hover:shadow-xl cursor-pointer ${color} bg-opacity-30 border border-transparent hover:border-black/5 flex flex-col justify-start`}
 			>
 				<div className='flex flex-col gap-6 items-start text-left'>
 					<div className='w-16 h-16 rounded-3xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300'>

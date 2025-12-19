@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Heart, ArrowRight, CheckCircle2 } from 'lucide-react';
@@ -14,9 +15,12 @@ export function DonationSection() {
 					<div className='relative z-10 bg-card/60 p-8 md:p-16'>
 						<div className='flex flex-col md:flex-row items-center gap-12 lg:gap-20'>
 							<div className='flex-1 relative order-2 md:order-1'>
-								<img
-									src='https://image.pollinations.ai/prompt/flat%20vector%20illustration%20community%20support%20heart%20hands%20donation%20minimalist%20vibrant%20colors%20white%20background?width=600&height=400&nologo=true&seed=42'
+								<Image
+									src='/images/landing_heart.png'
 									alt='Comunidad Solidaria'
+									width={600}
+									height={400}
+									unoptimized
 									className='w-full h-auto rounded-3xl shadow-lg transform -rotate-2 hover:rotate-0 transition-all duration-500'
 								/>
 							</div>

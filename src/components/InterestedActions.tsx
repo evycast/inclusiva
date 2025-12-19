@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { FaCheck, FaHeart } from "react-icons/fa"
+import { Check, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 function cx(...classes: Array<string | undefined>): string {
@@ -38,11 +38,11 @@ export function InterestedActions({ postId }: { postId: string }) {
   return (
     <div className="flex items-center gap-2">
       <Button variant={interested ? 'default' : 'outline'} size="sm" onClick={toggleInterested} aria-label="Me interesa">
-        <FaHeart className={cx(interested ? 'text-red-400' : 'text-muted-foreground')} />
+        <Heart className={cx(interested ? 'text-red-400' : 'text-muted-foreground')} />
         <span>Me interesa</span>
       </Button>
       <Button variant={going ? 'default' : 'outline'} size="sm" onClick={toggleGoing} aria-label="Asistiré">
-        <FaCheck className={cx(going ? 'text-green-400' : 'text-muted-foreground')} />
+        <Check className={cx(going ? 'text-green-400' : 'text-muted-foreground')} />
         <span>Asistiré</span>
       </Button>
     </div>

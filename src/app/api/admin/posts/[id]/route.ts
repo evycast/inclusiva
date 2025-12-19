@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireRole } from '@/lib/auth'
 import { updatePostSchema } from '@/lib/validation/post'
-import { parseISO, isValid } from 'date-fns'
+import { parseISO, isValid, addDays } from 'date-fns'
 
 const patchSchema = updatePostSchema
 
@@ -18,10 +18,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
   const input = parsed.data
 
+  if (input.status === 'rejected') {
+    const reason = String((body as { reason?: string }).reason ?? '').trim()
+    if (!reason) {
+      return NextResponse.json({ error: 'reason_required' }, { status: 400 })
+    }
+  }
+
   const date = input.date ? parseISO(input.date) : undefined
   const startDate = 'startDate' in input && input.startDate ? parseISO(input.startDate) : undefined
   const endDate = 'endDate' in input && input.endDate ? parseISO(input.endDate) : undefined
-  const expiresAt = input.expiresAt ? parseISO(input.expiresAt) : undefined
+  
+  // Al aprobar o actualizar, se resetea la fecha de expiración a 30 días desde ahora
+  const shouldResetExpiry = input.status === 'approved' || !input.expiresAt
+  const expiresAt = shouldResetExpiry ? addDays(new Date(), 30) : (input.expiresAt ? parseISO(input.expiresAt) : undefined)
 
   // Update scalar fields
   const updated = await prisma.post.update({
@@ -32,11 +42,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       subtitle: input.subtitle,
       description: input.description,
       image: input.image,
-      author: input.author,
-      authorAvatar: input.authorAvatar,
-      location: input.location,
       price: input.price,
-      priceLabel: input.priceLabel,
       rating: input.rating,
       ratingCount: input.ratingCount,
       tags: input.tags ? { set: input.tags } : undefined,
@@ -44,7 +50,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       date: date && isValid(date) ? date : undefined,
       payment: input.payment ? { set: input.payment } : undefined,
       barterAccepted: input.barterAccepted,
-      expiresAt: expiresAt && isValid(expiresAt) ? expiresAt : undefined,
+      expiresAt: expiresAt && isValid(expiresAt) ? expiresAt : (shouldResetExpiry ? addDays(new Date(), 30) : undefined),
       startDate: startDate && isValid(startDate) ? startDate : undefined,
       endDate: endDate && isValid(endDate) ? endDate : undefined,
       venue: 'venue' in input ? input.venue : undefined,
@@ -63,6 +69,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       level: 'level' in input ? input.level : undefined,
       neededBy: 'neededBy' in input ? input.neededBy : undefined,
       budgetRange: 'budgetRange' in input ? input.budgetRange : undefined,
+      termsAccepted: 'termsAccepted' in input ? input.termsAccepted : undefined,
+      contactVisibility: 'contactVisibility' in input ? input.contactVisibility : undefined,
+      contactFlow: 'contactFlow' in input ? input.contactFlow : undefined,
+      privateFullName: 'privateFullName' in input ? input.privateFullName : undefined,
+      privatePhone: 'privatePhone' in input ? input.privatePhone : undefined,
+      privateEmail: 'privateEmail' in input ? input.privateEmail : undefined,
+      privateDni: 'privateDni' in input ? input.privateDni : undefined,
+      privateDescription: 'privateDescription' in input ? input.privateDescription : undefined,
       status: input.status,
     },
   })
@@ -97,7 +111,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     })
   }
 
-  return NextResponse.json({ data: updated })
+  let emailPreviewUrl: string | undefined
+  if (input.status === 'rejected') {
+    const reason = String((body as { reason?: string }).reason ?? '').trim()
+    const after = await prisma.post.findUnique({ where: { id }, include: { user: true } })
+    const to = (after?.user?.email ?? '')
+    const sp = new URLSearchParams()
+    sp.set('postId', id)
+    sp.set('reason', reason)
+    if (to) sp.set('to', to)
+    emailPreviewUrl = `/sim/email/moderation?${sp.toString()}`
+  }
+  return NextResponse.json({ data: updated, emailPreviewUrl })
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

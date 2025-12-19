@@ -1,16 +1,17 @@
-'use client'
+"use client"
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-// next-auth not used here; cookie is set by our API
+import { Suspense, useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
-export default function AdminLoginPage() {
+function AdminLoginContent() {
   const router = useRouter()
+  const sp = useSearchParams()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -22,37 +23,46 @@ export default function AdminLoginPage() {
         if (!res.ok) return
         const data: unknown = await res.json()
         if (typeof data === 'object' && data && 'ok' in data && (data as { ok: boolean }).ok) {
-          router.replace('/admin/posts')
+          const role = (data as { role?: 'user'|'moderator'|'admin' }).role
+          const nextParam = sp.get('next')
+          if (nextParam) {
+            router.replace(nextParam)
+            return
+          }
+          if (role === 'admin') {
+            router.replace('/admin/posts')
+          } else {
+            router.replace('/publicaciones')
+          }
         }
       } catch {}
     }
     check()
-  }, [router])
+  }, [router, sp])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: username, password }),
-      })
-      if (!res.ok) {
-        let message = `Error ${res.status}`
-        try {
-          const data: unknown = await res.json()
-          if (typeof data === 'object' && data && 'error' in data) {
-            const err = (data as { error: unknown }).error
-            if (typeof err === 'string') message = err
-          }
-        } catch {}
-        throw new Error(message)
-      }
-      await res.json()
+      const res = await signIn('credentials', { email: username, password, redirect: false })
+      if (res?.error) throw new Error(res.error)
       toast.success('Sesión iniciada')
-      router.refresh()
-      router.replace('/admin/posts')
+      try {
+        const status = await fetch('/api/auth/status')
+        const data: unknown = await status.json()
+        const role = typeof data === 'object' && data && 'role' in data ? (data as { role?: 'user'|'moderator'|'admin' }).role : undefined
+        const nextParam = sp.get('next')
+        if (nextParam) {
+          router.replace(nextParam)
+        } else if (role === 'admin') {
+          router.replace('/admin/posts')
+        } else {
+          router.replace('/publicaciones')
+        }
+      } catch {
+        const nextParam = sp.get('next')
+        router.replace(nextParam || '/publicaciones')
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error de inicio de sesión'
       toast.error(msg)
@@ -87,5 +97,13 @@ export default function AdminLoginPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[calc(100vh-3rem)] flex items-center justify-center">Cargando...</div>}>
+      <AdminLoginContent />
+    </Suspense>
   )
 }

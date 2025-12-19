@@ -4,21 +4,14 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import type { PostInput } from "@/lib/validation/post"
-import {
-  FaExternalLinkAlt,
-  FaWhatsapp,
-  FaInstagram,
-  FaTelegramPlane,
-  FaEnvelope,
-  FaGlobe,
-} from "react-icons/fa"
+import { ExternalLink, MessageCircle, Camera, Send, Mail, Globe } from "lucide-react"
 
 const contactMeta: Record<string, { icon: React.ElementType; className: string; label: string }> = {
-  whatsapp: { icon: FaWhatsapp, className: "text-green-600", label: "WhatsApp" },
-  instagram: { icon: FaInstagram, className: "text-pink-600", label: "Instagram" },
-  telegram: { icon: FaTelegramPlane, className: "text-blue-500", label: "Telegram" },
-  email: { icon: FaEnvelope, className: "text-gray-500", label: "Email" },
-  website: { icon: FaGlobe, className: "text-cyan-600", label: "Sitio web" },
+  whatsapp: { icon: MessageCircle, className: "text-green-600", label: "WhatsApp" },
+  instagram: { icon: Camera, className: "text-pink-600", label: "Instagram" },
+  telegram: { icon: Send, className: "text-blue-500", label: "Telegram" },
+  email: { icon: Mail, className: "text-gray-500", label: "Email" },
+  website: { icon: Globe, className: "text-cyan-600", label: "Sitio web" },
 }
 
 type SocialItem = NonNullable<PostInput["socials"]>[number]
@@ -33,7 +26,7 @@ export function ContactCard({ socials }: { socials: SocialItem[] }) {
         <div className="space-y-3 mb-6">
           {socials.map(({ name, url }, idx) => {
             const meta = contactMeta[name] || {
-              icon: FaExternalLinkAlt,
+              icon: ExternalLink,
               className: "text-gray-500",
               label: name,
             }
@@ -53,7 +46,7 @@ export function ContactCard({ socials }: { socials: SocialItem[] }) {
                   <div className="flex-1 min-w-0">
                     <div className="text-foreground text-sm font-medium">{meta.label}</div>
                   </div>
-                  <FaExternalLinkAlt className="text-muted-foreground" aria-label="Abrir página externa" />
+                  <ExternalLink className="text-muted-foreground" aria-label="Abrir página externa" />
                 </a>
               )
             }
@@ -90,4 +83,3 @@ export function ContactCard({ socials }: { socials: SocialItem[] }) {
     </Card>
   )
 }
-

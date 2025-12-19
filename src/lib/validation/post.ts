@@ -7,8 +7,6 @@ export const paymentMethodOptions = [
 	'transfer',
 	'mercadopago',
 	'crypto',
-	'barter',
-	'all',
 ] as const;
 
 export const categoryOptions = ['eventos', 'servicios', 'productos', 'usados', 'cursos', 'pedidos'] as const;
@@ -124,9 +122,10 @@ const socialsSchema = z
 				message: 'Debe agregar al menos un contacto completo',
 			});
 		}
-})
+	})
 	.transform((arr) => arr.filter((i) => !isBlank(i.name) && !isBlank(i.url)));
 
+// Schema base para todas las publicaciones
 const basePostSchema = z
 	.object({
 		id: z.string().optional(),
@@ -140,68 +139,75 @@ const basePostSchema = z
 			.optional(),
 		description: z.string('La descripción es requerida').min(10, 'La descripción debe tener al menos 10 caracteres'),
 		image: z.string('La imagen es requerida').url('Debe ser una URL válida'),
-		author: z.string('El autor es requerido').min(2, 'El autor debe tener al menos 2 caracteres'),
-		authorAvatar: z.string().url('Debe ser una URL válida').optional(),
-		location: z.string('La ubicación es requerida').min(2, 'La ubicación debe tener al menos 2 caracteres'),
+		// Precio ahora es texto libre
 		price: z
-			.number('El precio debe ser un número')
-			.int('El precio debe ser un entero')
-			.nonnegative('El precio debe ser mayor o igual a 0')
-			.optional(),
-		priceLabel: z
 			.string()
-			.max(50, 'La etiqueta de precio no debe superar 50 caracteres')
+			.max(50, 'El precio no debe superar 50 caracteres')
 			.transform(emptyToUndefined)
 			.optional(),
 		rating: z.number().min(0).max(5).optional(),
 		ratingCount: z.number().int().nonnegative().optional(),
 		tags: z.array(z.enum(tagOptions)).optional(),
 		urgent: z.boolean().optional(),
-		// Fecha de publicación: la genera el backend automáticamente en creación
-		// No se requiere en el formulario del cliente
 		date: z.string().optional(),
 		status: z.enum(['pending', 'approved', 'rejected']).optional(),
-		// Contactos: primera fila obligatoria completa; adicionales opcionales pero en conjunto (ambas completas o ambas vacías)
+		// Contactos
 		socials: socialsSchema,
 		payment: z.array(z.enum(paymentMethodOptions)).optional(),
 		barterAccepted: z.boolean().optional(),
+		// Visibilidad siempre gated por defecto
+		contactVisibility: z.enum(['public', 'gated']).default('gated').optional(),
+		contactFlow: z.enum(['seller_contacts', 'buyer_contacts_first']).default('seller_contacts').optional(),
+		// Términos (un solo check)
+		termsAccepted: z.boolean().optional(),
+		// Datos privados para moderación
+		privateFullName: z
+			.string()
+			.min(2, 'El nombre completo debe tener al menos 2 caracteres')
+			.max(100, 'El nombre no debe superar 100 caracteres')
+			.transform(emptyToUndefined)
+			.optional(),
+		privatePhone: z
+			.string()
+			.min(6, 'El teléfono debe tener al menos 6 caracteres')
+			.max(20, 'El teléfono no debe superar 20 caracteres')
+			.transform(emptyToUndefined)
+			.optional(),
+		privateEmail: z
+			.string()
+			.email('Debe ser un email válido')
+			.transform(emptyToUndefined)
+			.optional(),
+		privateDni: z
+			.string()
+			.min(6, 'El DNI debe tener al menos 6 caracteres')
+			.max(15, 'El DNI no debe superar 15 caracteres')
+			.transform(emptyToUndefined)
+			.optional(),
+		privateDescription: z
+			.string()
+			.max(2000, 'La descripción privada no debe superar 2000 caracteres')
+			.transform(emptyToUndefined)
+			.optional(),
 	})
 	.superRefine((data, ctx) => {
-		const hasPrice = typeof data.price === 'number';
-		const hasLabel = typeof data.priceLabel === 'string';
-		// Regla XOR: uno de los dos debe existir, pero no ambos
-		if (!hasPrice && !hasLabel) {
+		// Validar que se acepten los términos
+		if (!data.termsAccepted) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				path: ['price'],
-				message: 'Debes indicar Precio o Etiqueta de precio (uno de los dos)',
-			});
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ['priceLabel'],
-				message: 'Debes indicar Precio o Etiqueta de precio (uno de los dos)',
-			});
-		}
-		if (hasPrice && hasLabel) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ['price'],
-				message: 'No pueden existir ambos: elige Precio o Etiqueta de precio',
-			});
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ['priceLabel'],
-				message: 'No pueden existir ambos: elige Precio o Etiqueta de precio',
+				path: ['termsAccepted'],
+				message: 'Debes aceptar los términos y condiciones',
 			});
 		}
 	});
 
+// Schema específico para eventos
 export const eventSchema = basePostSchema.extend({
 	category: z.literal('eventos'),
 	startDate: z.string('La fecha de inicio es requerida').min(1, 'La fecha de inicio es requerida'),
 	endDate: z.string().optional(),
 	venue: z.string('El lugar del evento es requerido').min(1, 'El lugar del evento es requerido'),
-	mode: z.enum(['presencial', 'online', 'hibrido'], 'Seleccione la modalidad del evento'),
+	mode: z.enum(['presencial', 'online', 'hibrido'], { message: 'Seleccione la modalidad del evento' }),
 	capacity: z.number().int().nonnegative().optional(),
 	organizer: z.string().optional(),
 });
@@ -219,7 +225,7 @@ export const serviceSchema = basePostSchema.extend({
 
 export const productSchema = basePostSchema.extend({
 	category: z.literal('productos'),
-	condition: z.enum(['nuevo', 'reacondicionado'], 'Seleccione la condición del producto'),
+	condition: z.enum(['nuevo', 'reacondicionado'], { message: 'Seleccione la condición del producto' }),
 	stock: z.number().int().nonnegative().optional(),
 	warranty: z.string().optional(),
 });
@@ -232,7 +238,7 @@ export const usedSchema = basePostSchema.extend({
 
 export const courseSchema = basePostSchema.extend({
 	category: z.literal('cursos'),
-	mode: z.enum(['presencial', 'online', 'hibrido'], 'Seleccione la modalidad del curso'),
+	mode: z.enum(['presencial', 'online', 'hibrido'], { message: 'Seleccione la modalidad del curso' }),
 	duration: z.string('La duración del curso es requerida').min(1, 'La duración del curso es requerida'),
 	schedule: z.string().optional(),
 	level: z.enum(['principiante', 'intermedio', 'avanzado']).optional(),
@@ -255,7 +261,7 @@ export const postSchema = z.discriminatedUnion('category', [
 
 export type PostInput = z.infer<typeof postSchema>;
 
-// Schema específico para actualizaciones (evita partial sobre discriminatedUnion)
+// Schema específico para actualizaciones
 export const updatePostSchema = z.object({
 	id: z.string().optional(),
 	category: z.enum(categoryOptions).optional(),
@@ -263,11 +269,7 @@ export const updatePostSchema = z.object({
 	subtitle: z.string().min(3).max(160).optional(),
 	description: z.string().min(10).optional(),
 	image: z.string().url().optional(),
-	author: z.string().min(2).optional(),
-	authorAvatar: z.string().url().optional(),
-	location: z.string().min(2).optional(),
-	price: z.number().int().nonnegative().optional(),
-	priceLabel: z.string().max(50).optional(),
+	price: z.string().max(50).optional(),
 	rating: z.number().min(0).max(5).optional(),
 	ratingCount: z.number().int().nonnegative().optional(),
 	tags: z.array(z.enum(tagOptions)).optional(),
@@ -275,11 +277,18 @@ export const updatePostSchema = z.object({
 	date: z.string().optional(),
 	status: z.enum(['pending', 'approved', 'rejected']).optional(),
 	expiresAt: z.string().optional(),
-	// Alinear con creación: permitir cadena libre
 	socials: z.array(z.object({ name: z.string().min(1), url: z.string().min(1) })).optional(),
 	payment: z.array(z.enum(paymentMethodOptions)).optional(),
 	barterAccepted: z.boolean().optional(),
-
+	contactVisibility: z.enum(['public', 'gated']).optional(),
+	contactFlow: z.enum(['seller_contacts', 'buyer_contacts_first']).optional(),
+	termsAccepted: z.boolean().optional(),
+	// Datos privados
+	privateFullName: z.string().optional(),
+	privatePhone: z.string().optional(),
+	privateEmail: z.string().optional(),
+	privateDni: z.string().optional(),
+	privateDescription: z.string().optional(),
 	// Evento
 	startDate: z.string().optional(),
 	endDate: z.string().optional(),
@@ -287,25 +296,20 @@ export const updatePostSchema = z.object({
 	mode: z.enum(['presencial', 'online', 'hibrido']).optional(),
 	capacity: z.number().int().nonnegative().optional(),
 	organizer: z.string().optional(),
-
 	// Servicio
 	experienceYears: z.number().int().nonnegative().optional(),
 	availability: z.string().optional(),
 	serviceArea: z.string().optional(),
-
 	// Producto
-	condition: z.enum(['nuevo', 'reacondicionado']).optional(),
+	condition: z.enum(['nuevo', 'reacondicionado', 'usado']).optional(),
 	stock: z.number().int().nonnegative().optional(),
 	warranty: z.string().optional(),
-
 	// Usado
 	usageTime: z.string().optional(),
-
 	// Curso
 	duration: z.string().optional(),
 	schedule: z.string().optional(),
 	level: z.enum(['principiante', 'intermedio', 'avanzado']).optional(),
-
 	// Pedido
 	neededBy: z.string().optional(),
 	budgetRange: z.string().optional(),
@@ -317,8 +321,6 @@ export const paymentMethodLabelsEs: Record<(typeof paymentMethodOptions)[number]
 	debit: 'Débito',
 	credit: 'Crédito',
 	transfer: 'Transferencia',
-	mercadopago: 'Mercado Pago',
+	mercadopago: 'Billetera virtual',
 	crypto: 'Cripto',
-	barter: 'Canje',
-	all: 'Todos',
 };

@@ -11,6 +11,12 @@ export async function POST(req: NextRequest) {
     const existing = await prisma.user.findUnique({ where: { email: input.email.toLowerCase() } })
     if (existing) return NextResponse.json({ error: 'Email ya registrado' }, { status: 409 })
 
+    const ip = req.headers.get('x-forwarded-for') ?? undefined
+    const userAgent = req.headers.get('user-agent') ?? undefined
+    const acceptLanguage = req.headers.get('accept-language') ?? undefined
+    const referrer = req.headers.get('referer') ?? undefined
+    const timezone = req.headers.get('x-timezone') ?? undefined
+
     const passwordHash = await hashPassword(input.password)
     const user = await prisma.user.create({
       data: {
@@ -19,6 +25,11 @@ export async function POST(req: NextRequest) {
         name: input.name ?? null,
         role: 'user',
         status: 'pending',
+        createdIp: ip ?? null,
+        createdUserAgent: userAgent ?? null,
+        createdAcceptLanguage: acceptLanguage ?? null,
+        createdTimezone: timezone ?? null,
+        createdReferrer: referrer ?? null,
       },
     })
 
@@ -32,7 +43,14 @@ export async function POST(req: NextRequest) {
     await sendVerificationEmail(user.email, verifyUrl)
     return NextResponse.json({ data: { id: user.id, email: user.email }, verify_url: verifyUrl }, { status: 201 })
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Invalid request'
-    return NextResponse.json({ error: msg }, { status: 400 })
+    const isZod = typeof e === 'object' && e !== null && 'issues' in (e as Record<string, unknown>)
+    if (isZod) {
+      return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 })
+    }
+    const code = typeof e === 'object' && e !== null && 'code' in (e as Record<string, unknown>) ? String((e as Record<string, unknown>).code) : undefined
+    if (code === 'P2002') {
+      return NextResponse.json({ error: 'Email ya registrado' }, { status: 409 })
+    }
+    return NextResponse.json({ error: 'Error al registrar usuario' }, { status: 400 })
   }
 }

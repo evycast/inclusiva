@@ -14,11 +14,8 @@ model Post {
   subtitle        String?
   description     String
   image           String
-  author          String
-  authorAvatar    String?
-  location        String
-  price           Int?
-  priceLabel      String?
+  // price ahora es texto libre: "1500", "gratis", "a voluntad", etc.
+  price           String?
   rating          Float?
   ratingCount     Int?
   tags            String[]
@@ -29,38 +26,50 @@ model Post {
   // Permisos y visibilidad
   authorId        String?
   expiresAt       DateTime?
-  privateInfo     String?
-  contactVisibility ContactVisibility?
+  contactVisibility ContactVisibility @default(gated)
   contactFlow     ContactFlow?
-  commitCommunity Boolean?
-  commitRespectRules Boolean?
+  // Términos aceptados (un solo check)
+  termsAccepted   Boolean         @default(false)
+  // Datos privados para moderación (no se muestran públicamente)
+  privateFullName String?
+  privatePhone    String?
+  privateEmail    String?
+  privateDni      String?
+  privateDescription String?
   // Metadata de creación (request)
   createdIp            String?
   createdUserAgent     String?
   createdAcceptLanguage String?
   createdTimezone      String?
   createdReferrer      String?
+  // Campos específicos de eventos
   startDate       DateTime?
   endDate         DateTime?
   venue           String?
   mode            Mode?
   capacity        Int?
   organizer       String?
+  // Campos específicos de servicios
   experienceYears Int?
   availability    String?
   serviceArea     String?
+  // Campos específicos de productos/usados
   condition       Condition?
   stock           Int?
   warranty        String?
   usageTime       String?
+  // Campos específicos de cursos
   duration        String?
   schedule        String?
   level           Level?
+  // Campos específicos de pedidos
   neededBy        String?
   budgetRange     String?
+  // Estado y timestamps
   status          PostStatus      @default(pending)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
+  // Relaciones
   socials         SocialLink[]
   user            User?           @relation(fields: [authorId], references: [id])
   reports         Report[]
@@ -107,6 +116,11 @@ model User {
   status         UserStatus @default(pending)
   emailVerified  DateTime?
   verifiedPublic Boolean    @default(false)
+  createdIp            String?
+  createdUserAgent     String?
+  createdAcceptLanguage String?
+  createdTimezone      String?
+  createdReferrer      String?
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
   posts          Post[]
@@ -152,8 +166,6 @@ enum PaymentMethod {
   transfer
   mercadopago
   crypto
-  barter
-  all
 }
 
 enum PostStatus {

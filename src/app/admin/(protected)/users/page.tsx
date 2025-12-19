@@ -81,7 +81,7 @@ export default function AdminUsersPage() {
 		},
 	});
 
-	const users = data?.data ?? [];
+  const users = useMemo(() => data?.data ?? [], [data?.data]);
 	const pagination = data?.pagination;
 
 	const [detailUser, setDetailUser] = useState<ApiUser | null>(null);

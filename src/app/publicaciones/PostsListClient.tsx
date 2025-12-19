@@ -21,12 +21,15 @@ export default function PostsListClient() {
   const [sort, setSort] = useState<UiSortKey>('recent');
   const [page, setPage] = useState(1);
   const pageSize = 24;
+  const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
+  const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined);
+  const [payment, setPayment] = useState<(typeof import('@/lib/validation/post').paymentMethodOptions)[number][]>([]);
+  const [location, setLocation] = useState<string | undefined>(undefined);
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedQ(q), 300);
+    setDebouncedQ(q);
     window.scrollTo(0, 0);
-    return () => clearTimeout(t);
   }, [q]);
 
   useEffect(() => {
@@ -34,14 +37,25 @@ export default function PostsListClient() {
     const q0 = sp.get('q') ?? '';
     const sort0 = (sp.get('sort') as UiSortKey | null) ?? 'recent';
     const page0 = parseInt(sp.get('page') ?? '1', 10) || 1;
+    const min0 = sp.get('minPrice') ? parseInt(sp.get('minPrice') as string, 10) : undefined;
+    const max0 = sp.get('maxPrice') ? parseInt(sp.get('maxPrice') as string, 10) : undefined;
+    const pay0 = (sp.get('payment') ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0) as (typeof import('@/lib/validation/post').paymentMethodOptions)[number][];
+    const loc0 = sp.get('location') ?? undefined;
     const allowed: ReadonlyArray<Category | 'all'> = ['eventos','servicios','productos','usados','cursos','pedidos','all'] as const;
     if (category && allowed.includes(category as Category | 'all')) setSelectedCategory(category as Category | 'all');
     setQ(q0);
     setDebouncedQ(q0);
     setSort(sort0);
     setPage(Math.max(page0, 1));
+    setMinPrice(min0);
+    setMaxPrice(max0);
+    setPayment(pay0);
+    setLocation(loc0);
     setInitialized(true);
-  }, []);
+  }, [sp, setSelectedCategory]);
 
   useEffect(() => {
     if (!initialized) return;
@@ -50,10 +64,14 @@ export default function PostsListClient() {
     if (debouncedQ) params.set('q', debouncedQ);
     if (sort) params.set('sort', sort);
     params.set('page', String(page));
+    if (typeof minPrice === 'number') params.set('minPrice', String(minPrice));
+    if (typeof maxPrice === 'number') params.set('maxPrice', String(maxPrice));
+    if (payment && payment.length > 0) params.set('payment', payment.join(','));
+    if (location && location.trim().length > 0) params.set('location', location.trim());
     const next = params.toString();
     const current = sp.toString();
     if (next !== current) router.replace(`/publicaciones?${next}`);
-  }, [selectedCategory, debouncedQ, sort, page, initialized]);
+  }, [selectedCategory, debouncedQ, sort, page, minPrice, maxPrice, payment, location, initialized, router, sp]);
 
   const {
     data: list,
@@ -65,6 +83,10 @@ export default function PostsListClient() {
     sort,
     page,
     pageSize,
+    minPrice,
+    maxPrice,
+    payment,
+    location,
     enabled: initialized,
   });
 
@@ -96,6 +118,14 @@ export default function PostsListClient() {
           sortBy={sort}
           onSortByChange={setSort}
           resultsCount={pagination.total}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          payment={payment}
+          onMinPriceChange={setMinPrice}
+          onMaxPriceChange={setMaxPrice}
+          onPaymentChange={setPayment}
+          location={location}
+          onLocationChange={setLocation}
         />
 
         {showLoading && (
@@ -149,4 +179,3 @@ export default function PostsListClient() {
     </>
   );
 }
-

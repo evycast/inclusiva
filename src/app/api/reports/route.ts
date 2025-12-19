@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     const json = await req.json()
     const postId = String(json.postId || '')
     const reason = String(json.reason || '')
-    const message = typeof json.message === 'string' ? json.message : undefined
+    const details = typeof json.details === 'string' ? json.details : undefined
     if (!postId || !reason) {
       return NextResponse.json({ error: 'Missing postId or reason' }, { status: 400 })
     }
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
         postId,
         userId: auth.userId ?? undefined,
         reason,
-        message,
+        message: details ?? undefined,
         ip,
         userAgent,
         acceptLanguage,

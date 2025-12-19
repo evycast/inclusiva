@@ -1,8 +1,9 @@
 import Link from 'next/link'
 
-export default function VerifiedPage({ searchParams }: { searchParams?: Record<string, string | string[]> }) {
-  const ok = searchParams?.ok === '1'
-  const error = typeof searchParams?.error === 'string' ? searchParams?.error : undefined
+export default async function VerifiedPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[]>> }) {
+  const params = (searchParams ? await searchParams : undefined) ?? {}
+  const ok = params?.ok === '1'
+  const error = typeof params?.error === 'string' ? params?.error : undefined
   return (
     <div className="min-h-[calc(100vh-3rem)] flex items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
       <div className="w-full max-w-md border-border/50 bg-card/ py-8 rounded-xl border shadow">
@@ -26,4 +27,3 @@ export default function VerifiedPage({ searchParams }: { searchParams?: Record<s
     </div>
   )
 }
-

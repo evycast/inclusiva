@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ShieldCheck } from 'lucide-react';
@@ -10,13 +11,12 @@ export function SafetySection() {
 		<section className='py-24 overflow-hidden'>
 			<div className='container px-4 mx-auto'>
 				<div className='bg-gradient-to-br from-violet-600 to-indigo-700 rounded-[2.5rem] p-8 md:p-16 text-white shadow-2xl relative overflow-hidden'>
-					{/* Background decorations */}
-					<div className='absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white/10 rounded-full blur-3xl' />
-					<div className='absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl' />
+					<div className='absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white/10 rounded-full opacity-40' />
+					<div className='absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-pink-500/20 rounded-full opacity-40' />
 
 					<div className='relative z-10 flex flex-col md:flex-row items-center gap-16'>
 						<div className='flex-1 space-y-8 text-left'>
-							<div className='inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 text-sm font-bold backdrop-blur-sm border border-white/10'>
+							<div className='inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 text-sm font-bold border border-white/10 shadow-friendly'>
 								<ShieldCheck className='w-4 h-4' />
 								Moderación Activa
 							</div>
@@ -38,10 +38,13 @@ export function SafetySection() {
 						</div>
 						<div className='flex-1 flex justify-center relative'>
 							<div className='relative w-72 h-72 md:w-80 md:h-80'>
-								<img
-									src='https://image.pollinations.ai/prompt/flat%20vector%20illustration%20two%20people%20hugging%20protection%20care%20community%20safe%20space%20minimalist%20vibrant%20colors%20white%20background?width=600&height=600&nologo=true&seed=88'
+								<Image
+									src='/images/landing_guard.png'
 									alt='Seguridad'
-									className='w-full h-full object-contain drop-shadow-2xl animate-float'
+									width={600}
+									height={600}
+									unoptimized
+									className='w-full h-full object-contain drop-shadow-2xl animate-float rounded-4xl'
 								/>
 							</div>
 						</div>

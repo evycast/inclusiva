@@ -1,60 +1,42 @@
+"use client";
 import Image from 'next/image';
 import Link from 'next/link';
-import type { PostInput } from '@/lib/validation/post';
+import { useRouter } from 'next/navigation';
+import type { ApiPost } from '@/types/api';
 import { categoryOptions, paymentMethodOptions } from '@/lib/validation/post';
 import { getCategory } from '@/lib/categories';
-import {
-	FaMapMarkerAlt,
-	FaStar,
-	FaMoneyBill,
-	FaCreditCard,
-	FaUniversity,
-	FaBitcoin,
-	FaHandshake,
-	FaClock,
-	FaTag,
-	FaWallet,
-	FaMoneyCheckAlt,
-	FaCalendarAlt,
-	FaUsers,
-	FaLaptop,
-	FaShieldAlt,
-	FaBoxOpen,
-	FaHistory,
-	FaMedal,
-	FaSignal,
-	FaQuestionCircle,
-	FaGlobe,
-	FaShoppingCart,
-	FaCalendarCheck,
-	FaInfoCircle,
-	FaEnvelope,
-	FaWhatsapp,
-	FaInstagram,
-	FaTelegramPlane,
-	FaPaperPlane,
-	FaTools,
-	FaStore,
-	FaExchangeAlt,
-	FaGraduationCap,
-	FaSearch,
-} from 'react-icons/fa';
+import { 
+    MapPin as LucideMapPin,
+    Banknote as LucideBanknote,
+    CreditCard as LucideCreditCard,
+    Landmark as LucideLandmark,
+    Bitcoin as LucideBitcoin,
+    Handshake as LucideHandshake,
+    Clock as LucideClock,
+    Tag as LucideTag,
+    Wallet as LucideWallet,
+    Calendar as LucideCalendar,
+    Medal as LucideMedal,
+    Signal as LucideSignal,
+} from 'lucide-react'
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 
 // Tipos básicos
 type Category = typeof categoryOptions[number];
 type PaymentMethod = typeof paymentMethodOptions[number];
-type PostCardProps = { post: PostInput };
+type PostCardProps = { post: ApiPost };
 
-function formatPrice(value?: number, label?: string): string | null {
-	if (label && label.trim().length > 0) return label;
-	if (typeof value !== 'number') return null;
-	if (value === 0) return 'Gratuito';
-	return `$ ${value.toLocaleString('es-AR')}`;
+function formatPrice(value?: string): string | null {
+	if (!value || value.trim().length === 0) return null;
+	// Si es un número, formatearlo
+	const num = Number(value);
+	if (!isNaN(num) && num === 0) return 'Gratuito';
+	if (!isNaN(num)) return `$ ${num.toLocaleString('es-AR')}`;
+	// Si es texto, mostrarlo tal cual
+	return value;
 }
 
 function formatDateTime(iso?: string): string | null {
@@ -75,84 +57,75 @@ function mapConditionLabel(cond?: string): string | null {
 
 // Métodos de pago con colores unificados
 const paymentMeta: Record<PaymentMethod, { icon: React.ElementType; className: string; label: string }> = {
-	cash: {
-		icon: FaMoneyBill,
-		className: 'text-slate-500',
-		label: 'Efectivo',
-	},
-	debit: { icon: FaCreditCard, className: 'text-slate-500', label: 'Débito' },
-	credit: {
-		icon: FaCreditCard,
-		className: 'text-slate-500',
-		label: 'Crédito',
-	},
-	transfer: {
-		icon: FaUniversity,
-		className: 'text-slate-500',
-		label: 'Transferencia',
-	},
-	mercadopago: {
-		icon: FaWallet,
-		className: 'text-slate-500',
-		label: 'Billetera virtual',
-	},
-	crypto: { icon: FaBitcoin, className: 'text-slate-500', label: 'Cripto' },
-	barter: {
-		icon: FaHandshake,
-		className: 'text-slate-500',
-		label: 'Canje',
-	},
-	all: {
-		icon: FaMoneyCheckAlt,
-		className: 'text-slate-500',
-		label: 'Todos los medios',
-	},
+    cash: {
+        icon: LucideBanknote,
+        className: 'text-slate-500',
+        label: 'Efectivo',
+    },
+    debit: { icon: LucideCreditCard, className: 'text-slate-500', label: 'Débito' },
+    credit: {
+        icon: LucideCreditCard,
+        className: 'text-slate-500',
+        label: 'Crédito',
+    },
+    transfer: {
+        icon: LucideLandmark,
+        className: 'text-slate-500',
+        label: 'Transferencia',
+    },
+    mercadopago: {
+        icon: LucideWallet,
+        className: 'text-slate-500',
+        label: 'Billetera virtual',
+    },
+    crypto: { icon: LucideBitcoin, className: 'text-slate-500', label: 'Cripto' },
 };
 
 // Info extra por categoría (icono + valor) tipado estricto
 type InfoItem = { key: string; icon: React.ElementType; value: string };
-function getExtraInfo(post: PostInput): InfoItem[] {
+function getExtraInfo(post: ApiPost): InfoItem[] {
 	const items: InfoItem[] = [];
 
-	// Ubicación unificada como primer chip
-	if (post.location) items.push({ key: 'location', icon: FaMapMarkerAlt, value: post.location });
+	// Ubicación: usar venue para eventos, serviceArea para servicios
+	const location = post.category === 'eventos' ? post.venue : (post.category === 'servicios' ? post.serviceArea : undefined);
+    if (location) items.push({ key: 'location', icon: LucideMapPin, value: location });
 
 	switch (post.category) {
     case 'eventos': {
             const p = post;
-			const date = formatDateTime(p.startDate);
-			if (date) items.push({ key: 'date', icon: FaCalendarAlt, value: date });
+            const date = formatDateTime(p.startDate);
+            if (date) items.push({ key: 'date', icon: LucideCalendar, value: date });
 			break;
 		}
     case 'servicios': {
             const p = post;
-			if (p.experienceYears != null) items.push({ key: 'exp', icon: FaMedal, value: `${p.experienceYears} años` });
-			if (p.availability) items.push({ key: 'avail', icon: FaClock, value: p.availability });
+            if (p.experienceYears != null) items.push({ key: 'exp', icon: LucideMedal, value: `${p.experienceYears} años` });
+            if (p.availability) items.push({ key: 'avail', icon: LucideClock, value: p.availability });
 			break;
 		}
     case 'productos': {
             const p = post;
 			const cond = mapConditionLabel(p.condition);
-			if (cond) items.push({ key: 'cond', icon: FaTag, value: cond });
+            if (cond) items.push({ key: 'cond', icon: LucideTag, value: cond });
 			break;
 		}
     case 'usados': {
             const p = post;
-			if (p.usageTime) items.push({ key: 'usage', icon: FaHistory, value: p.usageTime });
-			items.push({ key: 'cond', icon: FaTag, value: 'usado' });
+            if (p.usageTime) items.push({ key: 'usage', icon: LucideClock, value: p.usageTime });
+            items.push({ key: 'cond', icon: LucideTag, value: 'usado' });
 			break;
 		}
     case 'cursos': {
             const p = post;
-			if (p.duration) items.push({ key: 'dur', icon: FaClock, value: p.duration });
-			if (p.schedule) items.push({ key: 'sch', icon: FaClock, value: p.schedule });
-			if (p.level) items.push({ key: 'lvl', icon: FaSignal, value: p.level });
+            if (p.duration) items.push({ key: 'dur', icon: LucideClock, value: p.duration });
+            if (p.schedule) items.push({ key: 'sch', icon: LucideClock, value: p.schedule });
+            if (p.level) items.push({ key: 'lvl', icon: LucideSignal, value: p.level });
 			break;
 		}
     case 'pedidos': {
             const p = post;
-			if (p.neededBy) items.push({ key: 'need', icon: FaCalendarAlt, value: p.neededBy });
-			if (p.budgetRange) items.push({ key: 'budget', icon: FaMoneyBill, value: p.budgetRange });
+            if (p.neededBy) items.push({ key: 'need', icon: LucideCalendar, value: p.neededBy });
+            if (p.budgetRange) items.push({ key: 'budget', icon: LucideBanknote, value: p.budgetRange });
 			break;
 		}
 	}
@@ -160,10 +133,33 @@ function getExtraInfo(post: PostInput): InfoItem[] {
 }
 
 export default function PostCard({ post }: PostCardProps) {
-	const priceText = formatPrice(post.price, post.priceLabel);
+	const router = useRouter();
+	const priceText = formatPrice(post.price);
 	const extra = getExtraInfo(post).slice(0, 6);
 	const categoryDef = getCategory(post.category);
 	const CategoryIcon = categoryDef.icon;
+
+	// Obtener nombre y avatar del autor desde la relación User
+	const authorName = post.authorName ?? 'Anónimo';
+	const authorAvatar = post.authorAvatar ?? undefined;
+
+	const titleHoverClass =
+		post.category === 'servicios' ? 'group-hover:text-violet-600' :
+		post.category === 'productos' ? 'group-hover:text-pink-600' :
+		post.category === 'usados' ? 'group-hover:text-orange-600' :
+		post.category === 'eventos' ? 'group-hover:text-blue-600' :
+		post.category === 'cursos' ? 'group-hover:text-green-600' :
+		post.category === 'pedidos' ? 'group-hover:text-red-600' :
+		'group-hover:text-slate-600';
+
+	const avatarRingHoverClass =
+		post.category === 'servicios' ? 'hover:ring-violet-400' :
+		post.category === 'productos' ? 'hover:ring-pink-400' :
+		post.category === 'usados' ? 'hover:ring-orange-400' :
+		post.category === 'eventos' ? 'hover:ring-blue-400' :
+		post.category === 'cursos' ? 'hover:ring-green-400' :
+		post.category === 'pedidos' ? 'hover:ring-red-400' :
+		'hover:ring-slate-400';
 
 	return (
 		<Link href={`/publicaciones/${post.id}`} className="block">
@@ -179,23 +175,38 @@ export default function PostCard({ post }: PostCardProps) {
 					</Badge>
 				</div>
 				{/* Overlay autor + rating */}
-				<div className='absolute bottom-3 left-3'>
-					<div className='rounded-full relative'>
-						<div className='bg-black/70 pl-13 rounded-full pr-3 py-1.5 flex items-center top-1/2 -translate-y-1/2 ring-1 ring-white/10 shadow-md absolute backdrop-blur-sm'>
-							<span className='max-w-[140px] truncate inline-flex items-center text-xs font-medium text-white drop-shadow-sm '>
-								{post.author}
-							</span>
+					<div className='absolute bottom-3 left-3'>
+						<div className='rounded-full relative'>
+							<div
+								className='bg-black/70 pl-13 rounded-full pr-3 py-1.5 flex items-center top-1/2 -translate-y-1/2 ring-1 ring-white/10 shadow-md absolute'
+								role='button'
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									if (post.authorId) router.push(`/perfil/${post.authorId}`);
+								}}
+							>
+								<span className='max-w-[140px] truncate inline-flex items-center text-xs font-medium text-white drop-shadow-sm '>
+									{authorName}
+								</span>
+							</div>
+                            <Avatar
+                                className={`h-10 w-10 ring-2 ring-white/20 shadow-md transition-transform duration-200 hover:scale-110 ${avatarRingHoverClass}`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (post.authorId) router.push(`/perfil/${post.authorId}`);
+                                }}
+                            >
+								<AvatarImage src={authorAvatar} alt={authorName} />
+								<AvatarFallback className='font-medium bg-slate-100 text-slate-600'>{authorName.slice(0, 2).toUpperCase()}</AvatarFallback>
+							</Avatar>
 						</div>
-						<Avatar className='h-10 w-10 ring-2 ring-white/20 shadow-md'>
-							<AvatarImage src={post.authorAvatar} alt={post.author} />
-							<AvatarFallback className='font-medium bg-slate-100 text-slate-600'>{post.author.slice(0, 2).toUpperCase()}</AvatarFallback>
-						</Avatar>
 					</div>
-				</div>
 			</div>
 
 			<div className='p-4 h-full flex flex-col'>
-		<h3 className='line-clamp-2 font-semibold text-slate-900 text-[15px] sm:text-base group-hover:text-primary transition-colors'>{post.title}</h3>
+        <h3 className={`line-clamp-2 font-semibold text-slate-900 text-[15px] sm:text-base transition-colors ${titleHoverClass}`}>{post.title}</h3>
 		{post.subtitle ? (
 			<p className='mt-1 line-clamp-2 text-[13px] text-slate-600'>{post.subtitle}</p>
 		) : (
@@ -210,25 +221,25 @@ export default function PostCard({ post }: PostCardProps) {
 						{extra.map((item) => {
 							const Icon = item.icon;
 							return (
-								<span
-									key={item.key}
-									className={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[11px] font-medium border ${categoryDef.bgColor} ${categoryDef.textColor} ${categoryDef.borderColor}`}
-								>
-									<Icon className='opacity-80 text-[10px]' />
-									<span className='truncate max-w-[160px]'>{item.value}</span>
-								</span>
-							);
+                                <span
+                                    key={item.key}
+                                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border ${categoryDef.bgColor} ${categoryDef.textColor} ${categoryDef.borderColor}`}
+                                >
+                                    <Icon className='opacity-80 w-3.5 h-3.5' />
+                                    <span className='truncate max-w-[160px]'>{item.value}</span>
+                                </span>
+                            );
 						})}
 					</div>
 				)}
 
 				{/* Precio + métodos de pago */}
-				<div className='mt-auto pt-4'>
-					<div className='flex items-center justify-between gap-2'>
-						<div className='min-w-0 text-lg text-slate-900'>
-							{priceText && <span className='font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-700'>{priceText}</span>}
-						</div>
-						<div className='flex items-center gap-1.5'>
+                        <div className='mt-auto pt-4'>
+                            <div className='flex items-center justify-between gap-2'>
+                                <div className='min-w-0 text-lg text-slate-900'>
+                                    {priceText && <span className='font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-700'>{priceText}</span>}
+                                </div>
+                                <div className='flex items-center gap-1.5'>
 							{(post.payment ?? []).slice(0, 6).map((pm) => {
 								const meta = paymentMeta[pm as keyof typeof paymentMeta];
 								if (!meta) return null;
@@ -247,24 +258,24 @@ export default function PostCard({ post }: PostCardProps) {
 									</Tooltip>
 								);
 							})}
-							{post.barterAccepted && !(post.payment ?? []).includes('barter') && (
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<span
-											className={`inline-flex h-7 w-7 items-center justify-center rounded-md hover:bg-slate-100 transition-colors ${paymentMeta.barter.className}`}
-											aria-label='Acepta canje'
-										>
-											<FaHandshake className="w-4 h-4" />
-										</span>
-									</TooltipTrigger>
-									<TooltipContent>Acepta canje</TooltipContent>
-								</Tooltip>
-							)}
+                            {post.barterAccepted && (
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span
+                                            className='inline-flex h-7 w-7 items-center justify-center rounded-md hover:bg-slate-100 transition-colors text-slate-500'
+                                            aria-label='Acepta canje'
+                                        >
+                                            <LucideHandshake className="w-4 h-4" />
+                                        </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Acepta canje</TooltipContent>
+                                </Tooltip>
+                            )}
 						</div>
 					</div>
-				</div>
-			</div>
-		</Card>
-		</Link>
+                </div>
+            </div>
+        </Card>
+        </Link>
 	);
 }

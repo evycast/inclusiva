@@ -1,19 +1,19 @@
 import Link from 'next/link';
 import {
-	FaHeart,
-	FaUsers,
-	FaGraduationCap,
-	FaTools,
-	FaStore,
-	FaCalendarAlt,
-	FaExchangeAlt,
-	FaHandsHelping,
-	FaComments,
-	FaSearch,
-	FaFilter,
-	FaPlus,
-	FaBoxOpen,
-} from 'react-icons/fa';
+	Heart,
+	Users,
+	GraduationCap,
+	Wrench,
+	ShoppingBag,
+	Calendar,
+	Repeat,
+	Handshake,
+	MessageSquare,
+	Search,
+	Filter,
+	Plus,
+	Box,
+} from 'lucide-react';
 
 export default function GuiaPage() {
 	return (
@@ -51,7 +51,7 @@ export default function GuiaPage() {
 				<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
 					<div className='bg-gradient-to-br from-red-500/10 to-red-600/10 rounded-xl p-4 border border-red-500/20 hover:border-red-500/40 transition-colors'>
 						<div className='flex items-center gap-3 mb-2'>
-							<FaCalendarAlt className='text-red-500' />
+							<Calendar className='text-red-500' />
 							<h3 className='font-semibold'>Eventos</h3>
 						</div>
 						<p className='text-sm text-muted-foreground'>
@@ -61,7 +61,7 @@ export default function GuiaPage() {
 
 					<div className='bg-gradient-to-br from-blue-500/10 to-blue-600/10 rounded-xl p-4 border border-blue-500/20 hover:border-blue-500/40 transition-colors'>
 						<div className='flex items-center gap-3 mb-2'>
-							<FaTools className='text-blue-500' />
+							<Wrench className='text-blue-500' />
 							<h3 className='font-semibold'>Servicios</h3>
 						</div>
 						<p className='text-sm text-muted-foreground'>
@@ -71,7 +71,7 @@ export default function GuiaPage() {
 
 					<div className='bg-gradient-to-br from-orange-500/10 to-orange-600/10 rounded-xl p-4 border border-orange-500/20 hover:border-orange-500/40 transition-colors'>
 						<div className='flex items-center gap-3 mb-2'>
-							<FaStore className='text-orange-500' />
+							<ShoppingBag className='text-orange-500' />
 							<h3 className='font-semibold'>Productos</h3>
 						</div>
 						<p className='text-sm text-muted-foreground'>
@@ -81,7 +81,7 @@ export default function GuiaPage() {
 
 					<div className='bg-gradient-to-br from-green-500/10 to-green-600/10 rounded-xl p-4 border border-green-500/20 hover:border-green-500/40 transition-colors'>
 						<div className='flex items-center gap-3 mb-2'>
-							<FaGraduationCap className='text-green-500' />
+							<GraduationCap className='text-green-500' />
 							<h3 className='font-semibold'>Cursos</h3>
 						</div>
 						<p className='text-sm text-muted-foreground'>
@@ -91,7 +91,7 @@ export default function GuiaPage() {
 
 					<div className='bg-gradient-to-br from-violet-500/10 to-violet-600/10 rounded-xl p-4 border border-violet-500/20 hover:border-violet-500/40 transition-colors'>
 						<div className='flex items-center gap-3 mb-2'>
-							<FaExchangeAlt className='text-violet-500' />
+							<Repeat className='text-violet-500' />
 							<h3 className='font-semibold'>Usados</h3>
 						</div>
 						<p className='text-sm text-muted-foreground'>
@@ -101,7 +101,7 @@ export default function GuiaPage() {
 
 					<div className='bg-gradient-to-br from-pink-500/10 to-pink-600/10 rounded-xl p-4 border border-pink-500/20 hover:border-pink-500/40 transition-colors'>
 						<div className='flex items-center gap-3 mb-2'>
-							<FaSearch className='text-pink-500' />
+							<Search className='text-pink-500' />
 							<h3 className='font-semibold'>Pedidos</h3>
 						</div>
 						<p className='text-sm text-muted-foreground'>
@@ -118,7 +118,7 @@ export default function GuiaPage() {
 					<div className='bg-card/50 rounded-xl p-6 border border-border/50'>
 						<div className='flex items-start gap-4'>
 							<div className='bg-gradient-to-br from-pink-500 to-violet-600 p-2 rounded-lg flex-shrink-0'>
-								<FaBoxOpen className='w-5 h-5 text-white' />
+								<Box className='w-5 h-5 text-white' />
 							</div>
 							<div>
 								<h3 className='font-semibold mb-2'>1. Navegá por categorías</h3>
@@ -136,7 +136,7 @@ export default function GuiaPage() {
 					<div className='bg-card/50 rounded-xl p-6 border border-border/50'>
 						<div className='flex items-start gap-4'>
 							<div className='bg-gradient-to-br from-violet-500 to-blue-500 p-2 rounded-lg flex-shrink-0'>
-								<FaSearch className='w-5 h-5 text-white' />
+								<Search className='w-5 h-5 text-white' />
 							</div>
 							<div>
 								<h3 className='font-semibold mb-2'>2. Buscá y filtrá</h3>
@@ -154,7 +154,7 @@ export default function GuiaPage() {
 					<div className='bg-card/50 rounded-xl p-6 border border-border/50'>
 						<div className='flex items-start gap-4'>
 							<div className='bg-gradient-to-br from-blue-500 to-green-500 p-2 rounded-lg flex-shrink-0'>
-								<FaComments className='w-5 h-5 text-white' />
+								<MessageSquare className='w-5 h-5 text-white' />
 							</div>
 							<div>
 								<h3 className='font-semibold mb-2'>3. Conectá y conversá</h3>
@@ -172,7 +172,7 @@ export default function GuiaPage() {
 					<div className='bg-card/50 rounded-xl p-6 border border-border/50'>
 						<div className='flex items-start gap-4'>
 							<div className='bg-gradient-to-br from-green-500 to-orange-500 p-2 rounded-lg flex-shrink-0'>
-								<FaPlus className='w-5 h-5 text-white' />
+								<Plus className='w-5 h-5 text-white' />
 							</div>
 							<div>
 								<h3 className='font-semibold mb-2'>4. Compartí tu contenido</h3>
@@ -183,7 +183,7 @@ export default function GuiaPage() {
                                         href={'/publicaciones/crear'}
                                         className='bg-gradient-to-br from-pink-500 to-violet-600 p-2 rounded-full inline-flex items-center justify-center mx-2'
                                     >
-                                        <FaPlus className='w-3 h-3 text-white inline' />
+                                        <Plus className='w-3 h-3 text-white inline' />
                                     </Link>
 									flotante para crear una publicación. Cada aporte ayuda a fortalecer la comunidad.
 								</p>
@@ -202,19 +202,19 @@ export default function GuiaPage() {
 				<div className='bg-gradient-to-r from-pink-500/10 via-violet-500/10 to-blue-500/10 rounded-2xl p-6 border border-pink-500/20'>
 					<div className='grid gap-4 sm:grid-cols-2'>
 						<div className='flex items-center gap-3'>
-							<FaHeart className='text-pink-500 flex-shrink-0' />
+							<Heart className='text-pink-500 flex-shrink-0' />
 							<span className='font-medium'>Respeto y amor incondicional</span>
 						</div>
 						<div className='flex items-center gap-3'>
-							<FaUsers className='text-violet-500 flex-shrink-0' />
+							<Users className='text-violet-500 flex-shrink-0' />
 							<span className='font-medium'>Diversidad como fortaleza</span>
 						</div>
 						<div className='flex items-center gap-3'>
-							<FaHandsHelping className='text-blue-500 flex-shrink-0' />
+							<Handshake className='text-blue-500 flex-shrink-0' />
 							<span className='font-medium'>Apoyo mutuo y solidaridad</span>
 						</div>
 						<div className='flex items-center gap-3'>
-							<FaComments className='text-green-500 flex-shrink-0' />
+							<MessageSquare className='text-green-500 flex-shrink-0' />
 							<span className='font-medium'>Comunicación empática</span>
 						</div>
 					</div>
@@ -235,7 +235,7 @@ export default function GuiaPage() {
 						rel='noopener noreferrer'
 						className='inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-violet-600 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105 text-center'
 					>
-						<FaComments className='w-4 h-4' />
+						<MessageSquare className='w-4 h-4' />
 						Enviar feedback
 					</a>
 					<a
@@ -244,7 +244,7 @@ export default function GuiaPage() {
 						rel='noopener noreferrer'
 						className='inline-flex items-center gap-2 border border-border px-6 py-3 rounded-xl font-medium hover:bg-muted/50 transition-colors text-center'
 					>
-						<FaUsers className='w-4 h-4' />
+						<Users className='w-4 h-4' />
 						Unirse a la comunidad
 					</a>
 				</div>

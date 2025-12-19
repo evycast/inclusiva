@@ -32,11 +32,9 @@ export default function CrearServicioPage() {
 			description: '',
 			image:
 				'https://image.pollinations.ai/prompt/Board%20game%20afternoon%20in%20community%20center%2C%20diverse%20group%2C%20Mar%20del%20Plata%20Camet%2C%20photorealistic%2C%20warm%20light?width=1200&height=800&model=flux-realism&enhance=true&nologo=true',
-			author: '',
-			authorAvatar: undefined,
-			location: '',
 			socials: [{ name: '', url: '' }],
 			payment: [],
+			termsAccepted: false,
 		},
 	});
 
@@ -154,31 +152,6 @@ export default function CrearServicioPage() {
 						)}
 					/>
 
-					{/* Avatar del autor (URL) */}
-					<FormField
-						control={form.control}
-						name='authorAvatar'
-						render={({ field }) => (
-							<FormItem>
-								<div className='flex items-center gap-2'>
-									<FormLabel>Avatar (URL)</FormLabel>
-									<Badge variant='outline'>Opcional</Badge>
-								</div>
-								<FormControl>
-									<Input
-										{...field}
-										value={field.value ?? ''}
-										onBlur={() => {
-											field.onBlur();
-											form.trigger('authorAvatar');
-										}}
-										placeholder='https://...'
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
 
 					{/* Subtítulo */}
 					<FormField
@@ -237,55 +210,6 @@ export default function CrearServicioPage() {
 						)}
 					/>
 
-					{/* Autor */}
-					<FormField
-						control={form.control}
-						name='author'
-						render={({ field }) => (
-							<FormItem>
-								<div className='flex items-center gap-2'>
-									<FormLabel>Autor</FormLabel>
-									<Badge variant='outline'>Requerido</Badge>
-								</div>
-								<FormControl>
-									<Input
-										{...field}
-										value={field.value ?? ''}
-										onBlur={() => {
-											field.onBlur();
-											form.trigger('author');
-										}}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
-					{/* Ubicación */}
-					<FormField
-						control={form.control}
-						name='location'
-						render={({ field }) => (
-							<FormItem>
-								<div className='flex items-center gap-2'>
-									<FormLabel>Ubicación</FormLabel>
-									<Badge variant='outline'>Requerido</Badge>
-								</div>
-								<FormControl>
-									<Input
-										{...field}
-										value={field.value ?? ''}
-										onBlur={() => {
-											field.onBlur();
-											form.trigger('location');
-										}}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
 
 					{/* Métodos de pago (multiselección) */}
 					<FormField
@@ -456,16 +380,9 @@ export default function CrearServicioPage() {
 								</div>
 								<FormControl>
 									<Input
-										type='number'
-										inputMode='numeric'
-										pattern='[0-9]*'
-										step='1'
+										{...field}
 										value={field.value ?? ''}
-										onChange={(e) => {
-											const raw = e.target.value;
-											const num = raw === '' ? undefined : Number(raw);
-											field.onChange(num);
-										}}
+										placeholder='Ej: $5000/hora, A convenir'
 										onBlur={() => {
 											field.onBlur();
 											form.trigger('price');
@@ -510,30 +427,32 @@ export default function CrearServicioPage() {
 						)}
 					/>
 
-					{/* Etiqueta de precio */}
+
 					<FormField
 						control={form.control}
-						name='priceLabel'
+						name='privateDescription'
 						render={({ field }) => (
 							<FormItem>
 								<div className='flex items-center gap-2'>
-									<FormLabel>Etiqueta de precio</FormLabel>
+									<FormLabel>Información privada para moderación</FormLabel>
 									<Badge variant='outline'>Opcional</Badge>
 								</div>
 								<FormControl>
-									<Input
+									<Textarea
+										rows={4}
 										{...field}
 										value={field.value ?? ''}
 										onBlur={() => {
 											const v = (field.value ?? '').toString().trim();
 											if (v === '') {
-												form.setValue('priceLabel', undefined, { shouldValidate: true });
-												form.clearErrors('priceLabel');
+												form.setValue('privateDescription', undefined, { shouldValidate: true });
+												form.clearErrors('privateDescription');
 											} else {
 												field.onBlur();
-												form.trigger('priceLabel');
+												form.trigger('privateDescription');
 											}
 										}}
+										placeholder='Datos personales para validación (no se mostrarán públicamente)'
 									/>
 								</FormControl>
 								<FormMessage />
@@ -541,8 +460,22 @@ export default function CrearServicioPage() {
 						)}
 					/>
 
+					<FormField
+						control={form.control}
+						name='termsAccepted'
+						render={({ field }) => (
+							<FormItem>
+								<div className='flex items-center gap-2'>
+									<Checkbox checked={!!field.value} onCheckedChange={(v) => field.onChange(!!v)} />
+									<span className='text-sm'>Acepto los términos, condiciones y normas de la comunidad</span>
+								</div>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
 					<div className='flex justify-center'>
-						<Button type='submit' disabled={submitting}>
+						<Button type='submit' disabled={submitting || !form.watch('termsAccepted')}>
 							{submitting ? 'Enviando...' : 'Publicar servicio'}
 						</Button>
 					</div>

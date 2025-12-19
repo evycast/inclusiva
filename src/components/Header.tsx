@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { FaHeart } from 'react-icons/fa';
+import { Heart } from 'lucide-react';
 import { getSSRAuth } from '@/lib/auth';
-import LogoutButton from '@/components/LogoutButton';
+import HeaderNav from '@/components/HeaderNav';
 export const dynamic = 'force-dynamic'
 
 export default async function Header() {
@@ -13,7 +13,7 @@ export default async function Header() {
                 <div className='flex h-20 items-center justify-between'>
                     <Link href='/' className='flex items-center gap-3 group'>
                         <div className='bg-gradient-to-br from-pink-500 to-violet-600 flex h-10 w-10 items-center justify-center rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105 group-hover:rotate-3'>
-                            <FaHeart className='w-5 h-5 text-white' />
+                            <Heart className='w-5 h-5 text-white' />
                         </div>
                         <div className='flex flex-col'>
                             <span className='font-display text-xl sm:text-2xl font-semibold text-gradient-brand tracking-tight transition-all duration-300'>
@@ -24,28 +24,7 @@ export default async function Header() {
                             </span>
                         </div>
                     </Link>
-                    <nav className='hidden md:flex items-center gap-6 text-sm'>
-                        <Link href='/' className='text-muted-foreground hover:text-foreground transition-colors'>Inicio</Link>
-                        <Link href='/publicaciones' className='text-muted-foreground hover:text-foreground transition-colors'>Publicaciones</Link>
-                        <Link href='/guia' className='text-muted-foreground hover:text-foreground transition-colors'>Guía</Link>
-                        <Link href='/como-publicar' className='text-muted-foreground hover:text-foreground transition-colors'>Cómo publicar</Link>
-                        <Link href='/contacto' className='text-muted-foreground hover:text-foreground transition-colors'>Contacto</Link>
-                        <Link href='/publicaciones/crear' className='ml-2 inline-flex items-center rounded-lg bg-gradient-to-r from-pink-500 to-violet-600 px-3 py-2 font-medium text-white shadow-lg hover:shadow-xl transition'>
-                            Publicar
-                        </Link>
-                        {!logged && (
-                            <>
-                                <Link href='/admin/login' className='text-muted-foreground hover:text-foreground transition-colors'>Iniciar sesión</Link>
-                                <Link href='/register' className='text-muted-foreground hover:text-foreground transition-colors'>Registrarse</Link>
-                            </>
-                        )}
-                        {logged && (
-                            <>
-                                <Link href='/profile' className='text-muted-foreground hover:text-foreground transition-colors'>Perfil</Link>
-                                <LogoutButton />
-                            </>
-                        )}
-                    </nav>
+                    <HeaderNav initialLogged={logged} />
                 </div>
             </div>
         </header>

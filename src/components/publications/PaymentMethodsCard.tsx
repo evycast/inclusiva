@@ -2,17 +2,15 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import type { PostInput } from "@/lib/validation/post"
-import { FaMoneyBill, FaCreditCard, FaUniversity, FaWallet, FaBitcoin, FaHandshake } from "react-icons/fa"
+import { Banknote, CreditCard, Landmark, Wallet, Bitcoin, Handshake } from "lucide-react"
 
 const paymentMeta: Record<string, { icon: React.ElementType; className: string; label: string }> = {
-  cash: { icon: FaMoneyBill, className: "text-green-600", label: "Efectivo" },
-  debit: { icon: FaCreditCard, className: "text-blue-500", label: "Débito" },
-  credit: { icon: FaCreditCard, className: "text-purple-500", label: "Crédito" },
-  transfer: { icon: FaUniversity, className: "text-cyan-600", label: "Transferencia" },
-  mercadopago: { icon: FaWallet, className: "text-sky-500", label: "Billetera virtual" },
-  crypto: { icon: FaBitcoin, className: "text-orange-500", label: "Cripto" },
-  barter: { icon: FaHandshake, className: "text-amber-500", label: "Canje" },
-  all: { icon: FaMoneyBill, className: "text-gray-500", label: "Todos los medios" },
+  cash: { icon: Banknote, className: "text-green-600", label: "Efectivo" },
+  debit: { icon: CreditCard, className: "text-blue-500", label: "Débito" },
+  credit: { icon: CreditCard, className: "text-purple-500", label: "Crédito" },
+  transfer: { icon: Landmark, className: "text-cyan-600", label: "Transferencia" },
+  mercadopago: { icon: Wallet, className: "text-sky-500", label: "Billetera virtual" },
+  crypto: { icon: Bitcoin, className: "text-orange-500", label: "Cripto" },
 }
 
 type PaymentList = NonNullable<PostInput["payment"]>
@@ -34,9 +32,9 @@ export function PaymentMethodsCard({ payment, barterAccepted }: { payment: Payme
               </div>
             )
           })}
-          {barterAccepted && !payment.includes("barter") && (
+          {barterAccepted && (
             <div className="flex items-center gap-4 p-2 rounded bg-muted/50 text-sm">
-              <FaHandshake className="text-amber-500" />
+              <Handshake className="text-amber-500" />
               <span className="text-foreground">Acepta canje</span>
             </div>
           )}
@@ -45,4 +43,3 @@ export function PaymentMethodsCard({ payment, barterAccepted }: { payment: Payme
     </Card>
   )
 }
-

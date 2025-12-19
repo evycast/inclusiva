@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FaHome, FaPlus, FaUser, FaList } from 'react-icons/fa';
+import { Home, Plus, User, List } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
 
@@ -21,19 +21,19 @@ const BottomBar = () => {
 	const items: BottomBarItem[] = [
 		{
 			href: '/',
-			icon: FaHome,
+			icon: Home,
 			label: 'Inicio',
 			isActive: pathname === '/',
 		},
 		{
 			href: '/publicar',
-			icon: FaPlus,
+			icon: Plus,
 			label: 'Publicar',
 			isSpecial: true,
 		},
 		{
 			href: '/perfil',
-			icon: FaUser,
+			icon: User,
 			label: 'Perfil',
 			isActive: pathname.startsWith('/perfil'),
 		},
@@ -64,7 +64,7 @@ const BottomBar = () => {
             <Popover>
                 <PopoverTrigger asChild>
                     <Button className='rounded-full w-14 h-14 shadow-lg bg-gradient-to-br from-sky-500 via-cyan-500 to-emerald-500 text-white hover:opacity-90'>
-                        <FaList className='w-5 h-5' />
+                        <List className='w-5 h-5' />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className='w-64 p-2'>
@@ -84,7 +84,7 @@ const BottomBar = () => {
             <div className='bg-card border border-border p-4 rounded-full md:bg-transparent md:border-none md:p-0 md:shadow-none shadow-lg'>
                 <Link href='/publicar' className='flex flex-col items-center justify-center group'>
                     <div className='w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 via-red-500 to-purple-600 flex items-center justify-center shadow-lg transform transition-all duration-200 group-hover:scale-105 group-active:scale-95 animate-in hover:animate-none'>
-                        <FaPlus className='w-7 h-7 text-white ' />
+                        <Plus className='w-7 h-7 text-white ' />
                     </div>
                 </Link>
             </div>
