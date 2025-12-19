@@ -63,7 +63,7 @@ export function HeroSection() {
 								width={800}
 								height={800}
 								unoptimized
-								className='w-full h-auto rounded-[2rem] bg-muted'
+								className='w-full h-auto rounded-[2rem] bg-muted bg-white'
 							/>
 						</div>
 						{/* Decorative elements behind */}

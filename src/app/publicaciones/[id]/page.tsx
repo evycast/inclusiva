@@ -404,21 +404,30 @@ export default function PostDetailPage() {
                             {post.hasContact && (
                               (() => {
                                 const flow = post.contactFlow ?? 'buyer_contacts_first'
-                                const vis = post.contactVisibility ?? 'gated'
-                                if ((flow === 'seller_contacts' || vis === 'gated') && !canViewContact) {
+                                
+                                // Si ya tenemos los contactos, mostrarlos
+                                if (canViewContact && contacts.length > 0) {
+                                  return <ContactCard socials={contacts as { name: string; url: string }[]} />
+                                }
+                                
+                                // Flujo "seller_contacts": El vendedor contacta al interesado
+                                if (flow === 'seller_contacts') {
                                   return (
                                     <div className='rounded-lg border p-4 space-y-3'>
-                                      <div className='text-sm text-muted-foreground'>Dejanos tus datos y un mensaje breve para que el vendedor te contacte a la brevedad.</div>
+                                      <div className='text-sm text-muted-foreground'>
+                                        Dejanos tus datos y un mensaje breve para que el vendedor te contacte a la brevedad.
+                                      </div>
                                       <Button onClick={() => setRequestOpen(true)}>Solicitar contacto</Button>
                                     </div>
                                   )
                                 }
-                                if (canViewContact && contacts.length > 0) {
-                                  return <ContactCard socials={contacts as { name: string; url: string }[]} />
-                                }
+                                
+                                // Flujo "buyer_contacts_first": El comprador ve los datos y contacta
                                 return (
                                   <div className='rounded-lg border p-4 space-y-3'>
-                                    <div className='text-sm text-muted-foreground'>Para ver los datos de contacto, completá tus datos básicos.</div>
+                                    <div className='text-sm text-muted-foreground'>
+                                      Para ver los datos de contacto, completá tus datos básicos.
+                                    </div>
                                     <Button onClick={() => setRevealOpen(true)}>Ver datos de contacto</Button>
                                     {hideReveal && (
                                       <div className='text-xs text-destructive'>Datos inválidos, completalos para continuar</div>
