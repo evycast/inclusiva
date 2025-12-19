@@ -160,22 +160,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ ok: true })
     }
 
-    // gated: nunca revela, sólo permite staff/author GET (ya manejado en GET). POST registra solicitud similar a seller_contacts
-    if (visibility === 'gated') {
-      if (!name || !phone) return NextResponse.json({ error: 'name_phone_required' }, { status: 400 })
-      await prisma.moderationLog.create({
-        data: {
-          actor: auth.userId ?? 'buyer',
-          action: 'contact_request',
-          targetType: 'post',
-          targetId: id,
-          reason: JSON.stringify({ name, phone, email: email || undefined, message, ip: req.headers.get('x-forwarded-for') ?? undefined, userAgent: req.headers.get('user-agent') ?? undefined, acceptLanguage: req.headers.get('accept-language') ?? undefined, referrer: req.headers.get('referer') ?? undefined }),
-        },
-      })
-      return NextResponse.json({ ok: true })
-    }
-
-    // public + buyer_contacts_first: requiere datos básicos, setea cookie y devuelve contactos
+    // buyer_contacts_first con gated: requiere datos básicos, registra y devuelve contactos
     if (!name || !email || !phone) {
       return NextResponse.json({ error: 'basic_required' }, { status: 400 })
     }

@@ -103,14 +103,14 @@ export default function PostDetailPage() {
         if (res.status === 400 && err === 'basic_required') throw new Error('Ingresá nombre, email y teléfono')
         throw new Error('Error al validar datos de contacto')
       }
-      const payload = (await res.json().catch(() => ({ data: { socials: [] } }))) as { data?: { socials?: Array<{ name: string; url: string }> } }
+      const responseData = (await res.json().catch(() => ({ data: { socials: [] } }))) as { data?: { socials?: Array<{ name: string; url: string }> } }
       try {
-        const payload = { name: gateName.trim(), email: gateEmail.trim(), phone: gatePhone.trim() || undefined }
-        localStorage.setItem('contactUser', JSON.stringify(payload))
+        const userData = { name: gateName.trim(), email: gateEmail.trim(), phone: gatePhone.trim() || undefined }
+        localStorage.setItem('contactUser', JSON.stringify(userData))
       } catch {}
-      const socials = payload.data?.socials ?? []
+      const socials = responseData.data?.socials ?? []
       setContacts(socials)
-      setCanViewContact(socials.length > 0)
+      setCanViewContact(true)
       setHideReveal(false)
     })()
     await toast.promise(p, { loading: 'Validando…', success: 'Contacto habilitado', error: 'Error al habilitar' })
