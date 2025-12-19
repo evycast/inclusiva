@@ -1002,7 +1002,7 @@ export default function CrearWizardClient() {
                       }}
                       className={cn(
                         "group flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-200",
-                        "border-2 h-28 sm:h-32",
+                        "border-2 min-h-36 sm:min-h-40",
                         "hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary",
                         selected
                           ? `border-transparent bg-gradient-to-br ${def.gradient} text-white shadow-lg`
@@ -1015,19 +1015,16 @@ export default function CrearWizardClient() {
                       )}>
                         <Icon className={cn("w-5 h-5", selected ? "text-white" : "text-muted-foreground")} />
                       </div>
-                      <span className={cn("font-medium text-sm", selected ? "text-white" : "text-foreground")}>
+                      <span className={cn("font-medium text-sm mb-1", selected ? "text-white" : "text-foreground")}>
                         {CREATOR_LABELS[key]}
+                      </span>
+                      <span className={cn("text-xs text-center leading-tight px-1", selected ? "text-white/80" : "text-muted-foreground")}>
+                        {CREATOR_DESCRIPTIONS[key]}
                       </span>
                     </button>
                   );
                 })}
               </div>
-
-              {selectedCategory && (
-                <p className="text-sm text-muted-foreground text-center">
-                  {CREATOR_DESCRIPTIONS[selectedCategory]}
-                </p>
-              )}
 
               <div className="flex justify-end">
                 <Button type="button" onClick={goNext} disabled={!selectedCategory}>
@@ -1259,13 +1256,13 @@ export default function CrearWizardClient() {
           {currentStep === 3 && (
             <div className="space-y-5">
               <Card>
-                <CardHeader className="pb-3">
+                <CardHeader className="pb-4">
                   <CardTitle className="text-lg">Flujo de contacto</CardTitle>
                   <CardDescription>
                     Elegí cómo preferís que funcione el contacto con interesados
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-2">
                   <FormField
                     control={form.control}
                     name="contactFlow"
@@ -1394,14 +1391,14 @@ export default function CrearWizardClient() {
           {currentStep === 4 && (
             <div className="space-y-5">
               <Card>
-                <CardHeader className="pb-3">
+                <CardHeader className="pb-4">
                   <CardTitle className="text-lg">Datos para moderación</CardTitle>
                   <CardDescription>
                     Estos datos son confidenciales y solo serán usados por nuestro equipo de moderación
                     para verificar tu identidad. No se mostrarán públicamente.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="pt-2 space-y-4">
                   <FormField
                     control={form.control}
                     name="privateFullName"

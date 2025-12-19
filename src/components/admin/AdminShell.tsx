@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { Menu, FileText, Users2 } from "lucide-react"
+import { Menu, FileText, Users2, Flag } from "lucide-react"
 import LogoutButton from "@/components/LogoutButton"
 
 type NavItem = {
@@ -18,6 +18,7 @@ type NavItem = {
 const navItems: ReadonlyArray<NavItem> = [
   { label: "Publicaciones", href: "/admin/posts", icon: FileText },
   { label: "Usuarios", href: "/admin/users", icon: Users2 },
+  { label: "Reportes", href: "/admin/reports", icon: Flag },
 ]
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
@@ -44,6 +45,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     ? "Publicaciones"
     : pathname.startsWith("/admin/users")
     ? "Usuarios"
+    : pathname.startsWith("/admin/reports")
+    ? "Reportes"
     : "Admin"
 
   return (

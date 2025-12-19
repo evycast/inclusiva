@@ -18,7 +18,7 @@ import SafetyNoticeModal from '@/components/publications/SafetyNoticeModal';
 import { ContactCard } from '@/components/publications/ContactCard';
 import { PaymentMethodsCard } from '@/components/publications/PaymentMethodsCard';
 import CategorySpecificInfo from '@/components/publications/CategorySpecificInfo';
-import { Clock, Calendar, ShieldAlert, AlertCircle, ArrowLeft, Share2, Flag, XCircle, MapPin as LucideMapPin, Tag as LucideTag } from 'lucide-react';
+import { Clock, Calendar, ShieldAlert, AlertCircle, ArrowLeft, Share2, Flag, XCircle, MapPin as LucideMapPin, Tag as LucideTag, BadgeCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -322,10 +322,12 @@ export default function PostDetailPage() {
                         </AvatarFallback>
                     </Avatar>
                     <div className='flex flex-col'>
-                        <span className='font-semibold text-foreground hover:underline'>{authorName}</span>
-                        {post.authorVerified && (
-                          <span className='text-xs text-green-600'>Verificado</span>
-                        )}
+                        <span className='font-semibold text-foreground hover:underline flex items-center gap-1.5'>
+                          {authorName}
+                          {post.authorVerified && (
+                            <BadgeCheck className='w-4 h-4 text-emerald-500' />
+                          )}
+                        </span>
                     </div>
                   </Link>
                 ) : (
@@ -488,7 +490,15 @@ export default function PostDetailPage() {
                 <DialogTitle>Solicitar contacto</DialogTitle>
               </DialogHeader>
               <div className='space-y-3'>
-                <p className='text-sm text-muted-foreground'>El vendedor se pondrá en contacto a la brevedad.</p>
+                <div className='bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground space-y-2'>
+                  <p><strong>¿Cómo funciona?</strong></p>
+                  <ul className='list-disc pl-4 space-y-1'>
+                    <li>Dejanos tus datos de contacto</li>
+                    <li>El vendedor recibirá tu solicitud</li>
+                    <li>Se comunicará con vos a la brevedad</li>
+                  </ul>
+                  <p className='text-xs'>Tus datos solo serán compartidos con el vendedor de esta publicación.</p>
+                </div>
                 <Label htmlFor='reqName'>Nombre</Label>
                 <input id='reqName' className='border rounded px-3 py-2 text-sm w-full' placeholder='Tu nombre' value={reqName} onChange={(e) => setReqName(e.target.value)} />
                 <Label htmlFor='reqPhone'>Teléfono</Label>
@@ -511,6 +521,15 @@ export default function PostDetailPage() {
                 <DialogTitle>Ver datos de contacto</DialogTitle>
               </DialogHeader>
               <div className='space-y-3'>
+                <div className='bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground space-y-2'>
+                  <p><strong>¿Cómo funciona?</strong></p>
+                  <ul className='list-disc pl-4 space-y-1'>
+                    <li>Completá tus datos básicos</li>
+                    <li>Una vez validados, podrás ver los datos de contacto del vendedor</li>
+                    <li>Contactalo directamente por el medio que prefieras</li>
+                  </ul>
+                  <p className='text-xs'>Tus datos quedan guardados para futuras consultas.</p>
+                </div>
                 <Label htmlFor='reName'>Nombre</Label>
                 <input id='reName' className='border rounded px-3 py-2 text-sm w-full' placeholder='Tu nombre' value={gateName} onChange={(e) => { setGateName(e.target.value); setHideReveal(false) }} />
                 <Label htmlFor='reEmail'>Email</Label>

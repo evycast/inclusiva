@@ -8,7 +8,7 @@ import { Category } from '@/data/posts';
 import { Search, Box, ArrowUpDown, SlidersHorizontal } from 'lucide-react';
 import { CATEGORIES, CategoryKey } from '@/lib/categories';
 
-type SortKey = 'recent' | 'rating' | 'priceAsc' | 'priceDesc';
+type SortKey = 'recent' | 'rating';
 import { paymentMethodOptions, paymentMethodLabelsEs } from '@/lib/validation/post';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -21,11 +21,7 @@ interface SearchFiltersProps {
 	sortBy: SortKey;
 	onSortByChange: (sort: SortKey) => void;
 	resultsCount: number;
-  minPrice?: number;
-  maxPrice?: number;
   payment?: (typeof paymentMethodOptions)[number][];
-  onMinPriceChange?: (v?: number) => void;
-  onMaxPriceChange?: (v?: number) => void;
   onPaymentChange?: (v: (typeof paymentMethodOptions)[number][]) => void;
   location?: string;
   onLocationChange?: (v?: string) => void;
@@ -39,11 +35,7 @@ export default function SearchFilters({
 	sortBy,
 	onSortByChange,
 	resultsCount,
-	minPrice,
-	maxPrice,
 	payment = [],
-	onMinPriceChange,
-	onMaxPriceChange,
 	onPaymentChange,
 	location,
 	onLocationChange,
@@ -55,8 +47,6 @@ export default function SearchFilters({
   const [searchInput, setSearchInput] = useState<string>(searchQuery);
   const [selectedInput, setSelectedInput] = useState<typeof selected>(selected);
   const [sortInput, setSortInput] = useState<SortKey>(sortBy);
-  const [minInput, setMinInput] = useState<number | undefined>(minPrice);
-  const [maxInput, setMaxInput] = useState<number | undefined>(maxPrice);
   const [paymentInput, setPaymentInput] = useState<(typeof paymentMethodOptions)[number][]>(payment ?? []);
   const [locationInput, setLocationInput] = useState<string | undefined>(location ?? undefined);
 
@@ -77,14 +67,6 @@ export default function SearchFilters({
   useEffect(() => {
     setSortInput(sortBy);
   }, [sortBy]);
-
-  useEffect(() => {
-    setMinInput(minPrice);
-  }, [minPrice]);
-
-  useEffect(() => {
-    setMaxInput(maxPrice);
-  }, [maxPrice]);
 
   useEffect(() => {
     setPaymentInput(payment ?? []);
@@ -117,22 +99,6 @@ export default function SearchFilters({
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortInput]);
-
-  useEffect(() => {
-    const id = setTimeout(() => {
-      if (minInput !== minPrice) onMinPriceChange?.(minInput);
-    }, 500);
-    return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [minInput]);
-
-  useEffect(() => {
-    const id = setTimeout(() => {
-      if (maxInput !== maxPrice) onMaxPriceChange?.(maxInput);
-    }, 500);
-    return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [maxInput]);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -190,22 +156,8 @@ export default function SearchFilters({
                     <SelectContent>
                       <SelectItem value='recent'>Más recientes</SelectItem>
                       <SelectItem value='rating'>Mejor valorados</SelectItem>
-                      <SelectItem value='priceAsc'>Menor precio</SelectItem>
-                      <SelectItem value='priceDesc'>Mayor precio</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-              </div>
-
-              {/* Price range */}
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
-                <div>
-                  <label className='text-sm text-muted-foreground'>Precio mínimo</label>
-                  <Input type='number' inputMode='numeric' min={0} value={typeof minInput === 'number' ? String(minInput) : ''} onChange={(e) => setMinInput(e.target.value ? Number(e.target.value) : undefined)} />
-                </div>
-                <div>
-                  <label className='text-sm text-muted-foreground'>Precio máximo</label>
-                  <Input type='number' inputMode='numeric' min={0} value={typeof maxInput === 'number' ? String(maxInput) : ''} onChange={(e) => setMaxInput(e.target.value ? Number(e.target.value) : undefined)} />
                 </div>
               </div>
 

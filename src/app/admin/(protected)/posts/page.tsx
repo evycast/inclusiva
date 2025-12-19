@@ -38,7 +38,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Eye, Edit, Trash2, CheckCircle2 as VerifyCheck } from 'lucide-react';
+import { Eye, Edit, Trash2, CheckCircle2 as VerifyCheck, UserCog } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from 'sonner'
 import { StatusInlineControl, AdminStatus } from '@/components/admin/StatusInlineControl';
@@ -98,6 +98,7 @@ export default function AdminPostsPage() {
   const [changingId, setChangingId] = useState<string | null>(null);
   const [rejectTarget, setRejectTarget] = useState<{ id: string } | null>(null)
   const [rejectReason, setRejectReason] = useState('')
+  const [privateDataPost, setPrivateDataPost] = useState<ApiPost | null>(null)
 
   async function changeStatus(id: string, next: Status) {
     if (next === 'rejected') {
@@ -327,7 +328,20 @@ export default function AdminPostsPage() {
 													<Eye className='h-4 w-4' />
 												</Button>
 											</TooltipTrigger>
-											<TooltipContent>Ver</TooltipContent>
+											<TooltipContent>Ver publicación</TooltipContent>
+										</Tooltip>
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<Button
+													variant='ghost'
+													size='icon'
+													aria-label='Datos privados'
+													onClick={() => setPrivateDataPost(p)}
+												>
+													<UserCog className='h-4 w-4' />
+												</Button>
+											</TooltipTrigger>
+											<TooltipContent>Datos privados</TooltipContent>
 										</Tooltip>
 										<Tooltip>
 											<TooltipTrigger asChild>
@@ -574,6 +588,52 @@ export default function AdminPostsPage() {
                             </Button>
 						</div>
 					</div>
+				</DialogContent>
+			</Dialog>
+
+			{/* Modal de datos privados */}
+			<Dialog open={!!privateDataPost} onOpenChange={(o) => !o && setPrivateDataPost(null)}>
+				<DialogContent className='max-w-md'>
+					<DialogHeader>
+						<DialogTitle>Datos privados de moderación</DialogTitle>
+					</DialogHeader>
+					{privateDataPost && (
+						<div className='space-y-4'>
+							<p className='text-sm text-muted-foreground'>
+								Esta información es confidencial y solo debe usarse para verificar la identidad del publicante.
+							</p>
+							<Separator />
+							<div className='space-y-3'>
+								<div>
+									<Label className='text-xs text-muted-foreground'>Nombre completo</Label>
+									<p className='font-medium'>{(privateDataPost as ApiPost & { privateFullName?: string }).privateFullName || '—'}</p>
+								</div>
+								<div>
+									<Label className='text-xs text-muted-foreground'>Teléfono</Label>
+									<p className='font-medium'>{(privateDataPost as ApiPost & { privatePhone?: string }).privatePhone || '—'}</p>
+								</div>
+								<div>
+									<Label className='text-xs text-muted-foreground'>Email</Label>
+									<p className='font-medium'>{(privateDataPost as ApiPost & { privateEmail?: string }).privateEmail || '—'}</p>
+								</div>
+								<div>
+									<Label className='text-xs text-muted-foreground'>DNI</Label>
+									<p className='font-medium'>{(privateDataPost as ApiPost & { privateDni?: string }).privateDni || '—'}</p>
+								</div>
+								{(privateDataPost as ApiPost & { privateDescription?: string }).privateDescription && (
+									<div>
+										<Label className='text-xs text-muted-foreground'>Descripción adicional</Label>
+										<p className='text-sm'>{(privateDataPost as ApiPost & { privateDescription?: string }).privateDescription}</p>
+									</div>
+								)}
+							</div>
+							<div className='flex justify-end'>
+								<Button variant='outline' onClick={() => setPrivateDataPost(null)}>
+									Cerrar
+								</Button>
+							</div>
+						</div>
+					)}
 				</DialogContent>
 			</Dialog>
 		</div>

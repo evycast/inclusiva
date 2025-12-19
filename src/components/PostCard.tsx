@@ -18,6 +18,7 @@ import {
     Calendar as LucideCalendar,
     Medal as LucideMedal,
     Signal as LucideSignal,
+    BadgeCheck,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -186,8 +187,11 @@ export default function PostCard({ post }: PostCardProps) {
 									if (post.authorId) router.push(`/perfil/${post.authorId}`);
 								}}
 							>
-								<span className='max-w-[140px] truncate inline-flex items-center text-xs font-medium text-white drop-shadow-sm '>
+								<span className='max-w-[140px] truncate inline-flex items-center gap-1 text-xs font-medium text-white drop-shadow-sm'>
 									{authorName}
+									{post.authorVerified && (
+										<BadgeCheck className='w-3.5 h-3.5 text-emerald-400 shrink-0' />
+									)}
 								</span>
 							</div>
                             <Avatar
